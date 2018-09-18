@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
+import org.corningrobotics.enderbots.endercv.OpenCVPipeline;
 import org.opencv.core.*;
 import org.opencv.core.Core.*;
 import org.opencv.features2d.FeatureDetector;
@@ -22,7 +23,7 @@ import org.opencv.objdetect.*;
 *
 * @author GRIP
 */
-public class BlockDetectPipeline {
+public class BlockDetectPipeline extends OpenCVPipeline {
 
 	//Outputs
 	private Mat cvCvtcolorOutput = new Mat();
@@ -37,7 +38,7 @@ public class BlockDetectPipeline {
 	/**
 	 * This is the primary method that runs the entire pipeline and updates the outputs.
 	 */
-	public void process(Mat source0) {
+	public Mat processFrame(Mat source0, Mat blah) {
 		// Step CV_cvtColor0:
 		Mat cvCvtcolorSrc = source0;
 		int cvCvtcolorCode = Imgproc.COLOR_RGB2HSV;
@@ -62,6 +63,8 @@ public class BlockDetectPipeline {
 		double[] findBlobsCircularity = {0.0, 1.0};
 		boolean findBlobsDarkBlobs = false;
 		findBlobs(findBlobsInput, findBlobsMinArea, findBlobsCircularity, findBlobsDarkBlobs, findBlobsOutput);
+
+		return source0;
 
 	}
 
