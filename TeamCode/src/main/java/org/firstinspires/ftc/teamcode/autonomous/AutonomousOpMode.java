@@ -4,12 +4,21 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.corningrobotics.enderbots.endercv.CameraViewDisplay;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.teamcode.util.Robot;
+import org.firstinspires.ftc.teamcode.vision.ObjDetectPipeline;
+import org.opencv.core.MatOfPoint;
 
+import java.util.List;
 
+/**
+ * Abstract base class for all autonomous OpModes. This class contains useful methods
+ * and components to share between all autonomous modes. This class should be extended
+ * and implement `abstract void startOpMode()`
+ */
 public abstract class AutonomousOpMode extends LinearOpMode {
 
     private final double WHL_DIAM = 4;
@@ -20,16 +29,37 @@ public abstract class AutonomousOpMode extends LinearOpMode {
     public Robot r;
 
     private ElapsedTime runtime = new ElapsedTime();
+    public ObjDetectPipeline pipeline;
 
+    /**
+     * This method runs after the play button is pressed.  Should be implemented
+     * with whatever the OpMode should do after it runs.
+     */
     public abstract void startOpMode();
 
     public void runOpMode() {
+        r = new Robot(hardwareMap);
+
+        pipeline = new ObjDetectPipeline();
+
+        pipeline.init(hardwareMap.appContext, CameraViewDisplay.getInstance(), 1);
+
+
+        waitForStart();
+        pipeline.enable();
+        setCameraPosition(CameraPosition.DOWN);
         startOpMode();
     }
 
+    /**
+     * Drive around or something
+     * @param inches        Amount to drive, in inches
+     * @param pwr           Motor power at which to run
+     * @param timeout       Time limit for running so it stops eventually
+     */
     public void drive(double inches, double pwr, double timeout) {
         if (!opModeIsActive()) return;
-        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         int newLeftTicks = r.LEFT_FRONT.getCurrentPosition() + (int)(inches * PPI);
         int newRightTicks = r.LEFT_BACK.getCurrentPosition() + (int)(inches * PPI);
         runtime.reset();
@@ -61,21 +91,22 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         setPwr(0);
     }
 
-
-    public void setMode(DcMotor.RunMode mode) {
-        r.LEFT_FRONT.setMode(mode);
-        r.LEFT_BACK.setMode(mode);
-        r.RIGHT_FRONT.setMode(mode);
-        r.RIGHT_BACK.setMode(mode);
-    }
-
-    public void setTarget(int l, int rt) {
-        r.LEFT_BACK.setTargetPosition(l);
-        r.LEFT_FRONT.setTargetPosition(l);
+    /**
+     * Set encoder target position
+     * @param lf    Left's target position, in ticks
+     * @param rt    Right's target position, in ticks
+     */
+    private void setTarget(int lf, int rt) {
+        r.LEFT_BACK.setTargetPosition(lf);
+        r.LEFT_FRONT.setTargetPosition(lf);
         r.RIGHT_FRONT.setTargetPosition(rt);
         r.RIGHT_BACK.setTargetPosition(rt);
     }
 
+    /**
+     * Set power of all motors to a certain value
+     * @param pwr   Power of motors
+     */
     public void setPwr(double pwr) {
         pwr = Math.abs(pwr);
         r.LEFT_BACK.setPower(pwr);
@@ -84,6 +115,10 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         r.RIGHT_BACK.setPower(pwr);
     }
 
+    /**
+     * Set all motors to the same power, regardless of direction
+     * @param pwr   Motor power
+     */
     public void setPwrNoAbs(double pwr) {
         r.LEFT_BACK.setPower(pwr);
         r.LEFT_FRONT.setPower(pwr);
@@ -91,21 +126,38 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         r.RIGHT_BACK.setPower(pwr);
     }
 
+    /**
+     * Set the power of the Left drive motors
+     * @param pwr   Motor power
+     */
     public void setLPwr(double pwr) {
         r.LEFT_BACK.setPower(pwr);
         r.LEFT_FRONT.setPower(pwr);
     }
 
+    /**
+     * Set the power of the Right drive motors
+     * @param pwr   Motor power
+     */
     public void setRPwr(double pwr) {
         r.RIGHT_BACK.setPower(pwr);
         r.RIGHT_FRONT.setPower(pwr);
     }
+
+    /**
+     * Turns the robot until a certain heading, from the gyro sensor, running L & R motors in opposite directions
+     * @param heading   Heading, in degrees
+     * @param pwr       Motor power
+     * @param dir       Direction, either -1 or 1
+     * @param timeout   Time limit for operation
+     */
     public void turnUntilHeading(double heading, double pwr, double dir, double timeout) {
         if (!opModeIsActive()) return;
         double yaw = yaw();
-        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         runtime.reset();
-        while (Math.abs(distance(yaw, heading)) > HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
+        while (Math.abs(distance(yaw(), heading)) > HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
+            yaw = yaw();
             setLPwr(distance(yaw, heading) < 0? -pwr * dir:pwr * dir);
             setRPwr(distance(yaw, heading) > 0? -pwr * dir:pwr * dir);
             telemetry.addData("Turning", distance(yaw, heading) > 0? "Right":"Left");
@@ -113,7 +165,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
             telemetry.addData("", "Heading Target: %s | Actual: %s", heading, yaw);
             telemetry.addData("", "Distance: %s", distance(yaw,heading));
             telemetry.update();
-            yaw = yaw();
+
             if (this.isStopRequested()) {
                 return;
             }
@@ -122,10 +174,17 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         setPwr(0);
     }
 
+    /**
+     * Drag the left wheels while turning
+     * @param heading   Heading, in degrees
+     * @param pwr       Motor power
+     * @param dir       Direction, either 1 or -1
+     * @param timeout   Time limit for operation
+     */
     public void dragLeftTurnHeading(double heading, double pwr, double dir, double timeout) {
         if (!opModeIsActive()) return;
         double yaw = yaw();
-        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         runtime.reset();
         while (Math.abs(distance(yaw, heading)) > HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
             setLPwr(distance(yaw, heading) < 0 ? -pwr * dir : pwr * dir);
@@ -144,10 +203,17 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         setPwr(0);
     }
 
+    /**
+     * Drag the right wheels while turning
+     * @param heading   Heading, in degrees
+     * @param pwr       Motor power
+     * @param dir       Direction, either 1 or -1
+     * @param timeout   Time limit for operation
+     */
     public void dragRightTurnHeading(double heading, double pwr, double dir, double timeout) {
         if (!opModeIsActive()) return;
         double yaw = yaw();
-        setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         runtime.reset();
         while (Math.abs(distance(yaw, heading)) > HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
             //setLPwr(distance(yaw, heading) < 0? -pwr * dir:pwr * dir);
@@ -166,25 +232,79 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         setPwr(0);
     }
 
+    /**
+     * @return Motors busy?
+     */
     public boolean busy() {
         return r.RIGHT_BACK.isBusy() && r.LEFT_BACK.isBusy() && r.LEFT_FRONT.isBusy() && r.RIGHT_FRONT.isBusy();
     }
 
+    /**
+     * @return Get pitch from IMU
+     */
     public double pitch() {
         return r.IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).thirdAngle - 3;
     }
 
+    /**
+     * @return Get yaw from IMU
+     */
     public double yaw() {
         return r.IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
     }
 
+    /**
+     * @return Find distance between two angles, in degrees
+     */
     public double distance(double angle1, double angle2) {
         return ((angle2 - angle1 + 180) % 360) - 180;
     }
 
+    /**
+     * Reset all motor encoders
+     */
     public void resetEnc() {
-        setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        r.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         idle();
-        setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        r.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
+
+    public int contourCount() {
+        List<MatOfPoint> contours = pipeline.getContours();
+        return contours.size();
+    }
+
+    public double avgContourSize() {
+        double cumulative_size = 0;
+        int num = 0;
+        for (MatOfPoint c : pipeline.getContours()) {
+            cumulative_size += c.size().area();
+            num++;
+        }
+        return cumulative_size / num;
+    }
+
+    public enum CameraPosition {
+        // pitch, yaw
+        CENTER (0.35, 0.55),
+        LEFT (0.35, 0.15),
+        RIGHT (0.4, 0.85),
+        DOWN (1, 0.45);
+
+        private final double pitch, yaw;
+
+        private CameraPosition(double pitch, double yaw) {
+            this.pitch = pitch;
+            this.yaw = yaw;
+        }
+
+
+    }
+
+    public void setCameraPosition(CameraPosition pos) {
+        r.PHONE_PITCH.setPosition(pos.pitch);
+        r.PHONE_YAW.setPosition(pos.yaw);
+
+    }
+
 }
