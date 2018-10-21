@@ -60,15 +60,15 @@ public abstract class AutonomousOpMode extends LinearOpMode {
     public void drive(double inches, double pwr, double timeout) {
         if (!opModeIsActive()) return;
         r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        int newLeftTicks = r.LEFT_FRONT.getCurrentPosition() + (int)(inches * PPI);
-        int newRightTicks = r.LEFT_BACK.getCurrentPosition() + (int)(inches * PPI);
+        int newLeftTicks = r.DRIVE_LF.getCurrentPosition() + (int)(inches * PPI);
+        int newRightTicks = r.DRIVE_LB.getCurrentPosition() + (int)(inches * PPI);
         runtime.reset();
         if (inches > 0) {
             setPwrNoAbs(pwr);
-            while (r.LEFT_FRONT.getCurrentPosition() < newLeftTicks && r.RIGHT_BACK.getCurrentPosition()
+            while (r.DRIVE_LF.getCurrentPosition() < newLeftTicks && r.DRIVE_RB.getCurrentPosition()
                     < newRightTicks && runtime.seconds() < timeout) {
-                telemetry.addData("Pos", "%05d | %05d", r.LEFT_FRONT.getCurrentPosition(),
-                        r.RIGHT_BACK.getCurrentPosition());
+                telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LF.getCurrentPosition(),
+                        r.DRIVE_RB.getCurrentPosition());
                 telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
                 telemetry.update();
                 if (this.isStopRequested()) {
@@ -77,10 +77,10 @@ public abstract class AutonomousOpMode extends LinearOpMode {
             }
         } else {
             setPwrNoAbs(-pwr);
-            while (r.LEFT_FRONT.getCurrentPosition() > newLeftTicks && r.RIGHT_BACK.getCurrentPosition()
+            while (r.DRIVE_LF.getCurrentPosition() > newLeftTicks && r.DRIVE_RB.getCurrentPosition()
                     > newRightTicks && runtime.seconds() < timeout) {
-                telemetry.addData("Pos", "%05d | %05d", r.LEFT_FRONT.getCurrentPosition(),
-                        r.RIGHT_BACK.getCurrentPosition());
+                telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LF.getCurrentPosition(),
+                        r.DRIVE_RB.getCurrentPosition());
                 telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
                 telemetry.update();
                 if (this.isStopRequested()) {
@@ -97,10 +97,10 @@ public abstract class AutonomousOpMode extends LinearOpMode {
      * @param rt    Right's target position, in ticks
      */
     private void setTarget(int lf, int rt) {
-        r.LEFT_BACK.setTargetPosition(lf);
-        r.LEFT_FRONT.setTargetPosition(lf);
-        r.RIGHT_FRONT.setTargetPosition(rt);
-        r.RIGHT_BACK.setTargetPosition(rt);
+        r.DRIVE_LB.setTargetPosition(lf);
+        r.DRIVE_LF.setTargetPosition(lf);
+        r.DRIVE_RF.setTargetPosition(rt);
+        r.DRIVE_RB.setTargetPosition(rt);
     }
 
     /**
@@ -109,10 +109,10 @@ public abstract class AutonomousOpMode extends LinearOpMode {
      */
     public void setPwr(double pwr) {
         pwr = Math.abs(pwr);
-        r.LEFT_BACK.setPower(pwr);
-        r.LEFT_FRONT.setPower(pwr);
-        r.RIGHT_FRONT.setPower(pwr);
-        r.RIGHT_BACK.setPower(pwr);
+        r.DRIVE_LB.setPower(pwr);
+        r.DRIVE_LF.setPower(pwr);
+        r.DRIVE_RF.setPower(pwr);
+        r.DRIVE_RB.setPower(pwr);
     }
 
     /**
@@ -120,10 +120,10 @@ public abstract class AutonomousOpMode extends LinearOpMode {
      * @param pwr   Motor power
      */
     public void setPwrNoAbs(double pwr) {
-        r.LEFT_BACK.setPower(pwr);
-        r.LEFT_FRONT.setPower(pwr);
-        r.RIGHT_FRONT.setPower(pwr);
-        r.RIGHT_BACK.setPower(pwr);
+        r.DRIVE_LB.setPower(pwr);
+        r.DRIVE_LF.setPower(pwr);
+        r.DRIVE_RF.setPower(pwr);
+        r.DRIVE_RB.setPower(pwr);
     }
 
     /**
@@ -131,8 +131,8 @@ public abstract class AutonomousOpMode extends LinearOpMode {
      * @param pwr   Motor power
      */
     public void setLPwr(double pwr) {
-        r.LEFT_BACK.setPower(pwr);
-        r.LEFT_FRONT.setPower(pwr);
+        r.DRIVE_LB.setPower(pwr);
+        r.DRIVE_LF.setPower(pwr);
     }
 
     /**
@@ -140,8 +140,8 @@ public abstract class AutonomousOpMode extends LinearOpMode {
      * @param pwr   Motor power
      */
     public void setRPwr(double pwr) {
-        r.RIGHT_BACK.setPower(pwr);
-        r.RIGHT_FRONT.setPower(pwr);
+        r.DRIVE_RB.setPower(pwr);
+        r.DRIVE_RF.setPower(pwr);
     }
 
     /**
@@ -236,7 +236,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
      * @return Motors busy?
      */
     public boolean busy() {
-        return r.RIGHT_BACK.isBusy() && r.LEFT_BACK.isBusy() && r.LEFT_FRONT.isBusy() && r.RIGHT_FRONT.isBusy();
+        return r.DRIVE_RB.isBusy() && r.DRIVE_LB.isBusy() && r.DRIVE_LF.isBusy() && r.DRIVE_RF.isBusy();
     }
 
     /**

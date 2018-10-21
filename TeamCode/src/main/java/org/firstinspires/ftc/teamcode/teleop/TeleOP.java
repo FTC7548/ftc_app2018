@@ -33,6 +33,7 @@ public class TeleOP extends OpMode {
     public void loop() {
         // graber.update();
         drive();
+        lift();
 
         if (gamepad1.x)
             r.PHONE_YAW.setPosition(0);
@@ -55,5 +56,16 @@ public class TeleOP extends OpMode {
         r.setDrivePwr(l_pwr, r_pwr);
     }
 
-
+    public void lift() {
+        if(gamepad2.left_bumper) {
+            r.LIFT_LF.setPower(1);
+            r.LIFT_RF.setPower(1);
+        } else if(gamepad2.left_trigger > 0.5) {
+            r.LIFT_LF.setPower(0);
+            r.LIFT_RF.setPower(0);
+        } else {
+            r.LIFT_LF.setPower(-1);
+            r.LIFT_RF.setPower(-1);
+        }
+    }
 }

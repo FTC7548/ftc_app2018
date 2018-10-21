@@ -19,18 +19,18 @@ public class Robot {
     /**
      * Drive motors
      */
-    public DcMotor      LEFT_FRONT,
-                        LEFT_BACK,
-                        RIGHT_FRONT,
-                        RIGHT_BACK;
+    public DcMotor      DRIVE_LF,
+                        DRIVE_LB,
+                        DRIVE_RF,
+                        DRIVE_RB;
 
     /**
      * Lift motors
      */
-    public DcMotor      LIFT_1,
-                        LIFT_2,
-                        LIFT_3,
-                        LIFT_4;
+    public DcMotor      LIFT_LF,
+                        LIFT_LB,
+                        LIFT_RF,
+                        LIFT_RB;
 
     /**
      * Controls the positioning of the phone mount for auto
@@ -49,25 +49,21 @@ public class Robot {
      */
     public Robot(HardwareMap hm) {
 
-        LEFT_FRONT = hm.dcMotor.get("lf");
-        RIGHT_FRONT = hm.dcMotor.get("rf");
-        LEFT_BACK = hm.dcMotor.get("lb");
-        RIGHT_BACK = hm.dcMotor.get("rb");
+        DRIVE_LF = hm.dcMotor.get("drive_lf");
+        DRIVE_RF = hm.dcMotor.get("drive_rf");
+        DRIVE_LB = hm.dcMotor.get("drive_lb");
+        DRIVE_RB = hm.dcMotor.get("drive_rb");
 
-        LEFT_FRONT.setDirection(DcMotor.Direction.REVERSE);
-        LEFT_BACK.setDirection(DcMotor.Direction.REVERSE);
+        DRIVE_LF.setDirection(DcMotor.Direction.REVERSE);
+        DRIVE_LB.setDirection(DcMotor.Direction.REVERSE);
+
+        LIFT_LF = hm.dcMotor.get("lift_lf");
+        LIFT_RF = hm.dcMotor.get("lift_rf");
+        LIFT_LB = hm.dcMotor.get("lift_lb");
+        LIFT_RB = hm.dcMotor.get("lift_rb");
 
         PHONE_YAW = hm.servo.get("yaw");
         PHONE_PITCH = hm.servo.get("pitch");
-
-
-        /*
-        LIFT_1 = hm.dcMotor.get("lift_1");
-        LIFT_2 = hm.dcMotor.get("lift_2");
-        LIFT_3 = hm.dcMotor.get("lift_3");
-        LIFT_4 = hm.dcMotor.get("lift_4");
-
-        */
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
@@ -87,10 +83,10 @@ public class Robot {
      * @param r_pwr Power of the right drive motors
      */
     public void setDrivePwr(float l_pwr, float r_pwr) {
-        LEFT_FRONT.setPower(l_pwr);
-        LEFT_BACK.setPower(l_pwr);
-        RIGHT_FRONT.setPower(r_pwr);
-        RIGHT_BACK.setPower(r_pwr);
+        DRIVE_LF.setPower(l_pwr);
+        DRIVE_LB.setPower(l_pwr);
+        DRIVE_RF.setPower(r_pwr);
+        DRIVE_RB.setPower(r_pwr);
     }
 
     /**
@@ -98,9 +94,10 @@ public class Robot {
      * @param mode Mode for drive motors
      */
     public void setMode(DcMotor.RunMode mode) {
-        LEFT_FRONT.setMode(mode);
-        LEFT_BACK.setMode(mode);
-        RIGHT_FRONT.setMode(mode);
-        RIGHT_BACK.setMode(mode);
+        DRIVE_LF.setMode(mode);
+        DRIVE_LB.setMode(mode);
+        DRIVE_RF.setMode(mode);
+        DRIVE_RB.setMode(mode);
     }
+
 }
