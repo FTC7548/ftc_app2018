@@ -19,10 +19,12 @@ public class TeleOP extends OpMode {
     private Robot r;
 
     private ToggleServo pitch;
+    private boolean moving_down, down_prevent;
 
     public void init() {
         r = new Robot(hardwareMap);
         r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        down_prevent = false;
 
     }
 
@@ -56,13 +58,69 @@ public class TeleOP extends OpMode {
         r.setDrivePwr(l_pwr, r_pwr);
     }
 
+    public double lift_pwr;
+
+    private Thread delay = new Thread();
+    boolean processing = false;
+
     public void lift() {
-        if(gamepad1.left_bumper) {
-            r.setLiftPwr(1);
+        if (gamepad1.right_bumper)
+            lift_pwr = 0.5;
+        else
+            lift_pwr = 1;
+
+        if (gamepad1.left_bumper) {
+            moving_down = false;
+            if (down_prevent) {
+                new Thread(new UnlockDelay()).start();
+            } else {
+                r.setLiftPwr(lift_pwr);
+            }
         } else if (gamepad1.left_trigger > 0.5) {
-            r.setLiftPwr(-1);
-        } else {
+            if (!moving_down && !processing) {
+                new Thread(new DownDelay()).start();
+                processing = true;
+            } else {
+                r.setLiftPwr(-lift_pwr);
+            }
+        } else { // fixed position
             r.setLiftPwr(0);
+            r.PREVENT_DOWN.setPosition(1);
+            down_prevent = true;
+            moving_down = false;
+        }
+    }
+
+    public class UnlockDelay implements Runnable {
+        @Override
+        public void run() {
+            try {
+                r.PREVENT_DOWN.setPosition(.85);
+                Thread.sleep(250);
+                down_prevent = false;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    public class DownDelay implements Runnable {
+        @Override
+        public void run() {
+            try {
+                moving_down = true;
+                r.PREVENT_DOWN.setPosition(.85);
+                down_prevent = false;
+                Thread.sleep(250);
+                r.setLiftPwr(0.5F);
+                Thread.sleep(100);
+                r.setLiftPwr(-lift_pwr);
+                processing = false;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
         }
     }
 }

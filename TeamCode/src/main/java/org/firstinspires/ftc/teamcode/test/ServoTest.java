@@ -11,13 +11,13 @@ public class ServoTest extends AutonomousOpMode {
 
     public void startOpMode() {
 
-        r.PHONE_PITCH.setPosition(1);
-        r.PHONE_YAW.setPosition(0.5);
+        r.PREVENT_UP.setPosition(1);
+        r.PREVENT_DOWN.setPosition(0.5);
 
         while (opModeIsActive()) {
 
-            double new_pitch = r.PHONE_PITCH.getPosition();
-            double new_yaw = r.PHONE_YAW.getPosition();
+            double new_pitch = r.PREVENT_UP.getPosition();
+            double new_yaw = r.PREVENT_DOWN.getPosition();
 
             if (gamepad1.x) {
                 new_pitch += 0.05;
@@ -35,11 +35,11 @@ public class ServoTest extends AutonomousOpMode {
                 new_yaw -= 0.05;
             }
 
-            r.PHONE_PITCH.setPosition(Range.clip(new_pitch, 0, 1));
-            r.PHONE_YAW.setPosition(Range.clip(new_yaw, 0, 1));
+            r.PREVENT_UP.setPosition(Range.clip(new_pitch, 0, 1));
+            r.PREVENT_DOWN.setPosition(Range.clip(new_yaw, 0, 1));
 
-            telemetry.addData("servo pos", "Pitch: %s, Yaw: %s",
-                    r.PHONE_PITCH.getPosition(), r.PHONE_YAW.getPosition());
+            telemetry.addData("servo pos", "up: %s, down: %s",
+                    r.PREVENT_UP.getPosition(), r.PREVENT_DOWN.getPosition());
             telemetry.update();
             sleep(250);
             idle();

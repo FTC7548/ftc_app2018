@@ -39,6 +39,12 @@ public class Robot {
                         PHONE_PITCH;
 
     /**
+     * Does what it says on the can
+     */
+    public Servo        PREVENT_UP;
+    public Servo        PREVENT_DOWN;
+
+    /**
      * Internal gyro in the REV module
      */
     public BNO055IMU IMU;
@@ -54,8 +60,8 @@ public class Robot {
         DRIVE_LB = hm.dcMotor.get("drive_lb");
         DRIVE_RB = hm.dcMotor.get("drive_rb");
 
-        DRIVE_LF.setDirection(DcMotor.Direction.REVERSE);
-        DRIVE_LB.setDirection(DcMotor.Direction.REVERSE);
+        DRIVE_RF.setDirection(DcMotor.Direction.REVERSE);
+        DRIVE_RB.setDirection(DcMotor.Direction.REVERSE);
 
         LIFT_LF = hm.dcMotor.get("lift_lf");
         LIFT_RF = hm.dcMotor.get("lift_rf");
@@ -64,6 +70,9 @@ public class Robot {
 
         PHONE_YAW = hm.servo.get("yaw");
         PHONE_PITCH = hm.servo.get("pitch");
+
+        PREVENT_UP = hm.servo.get("upratchet");
+        PREVENT_DOWN = hm.servo.get("downratchet");
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
@@ -82,14 +91,14 @@ public class Robot {
      * @param l_pwr Power of left drive motors
      * @param r_pwr Power of the right drive motors
      */
-    public void setDrivePwr(float l_pwr, float r_pwr) {
+    public void setDrivePwr(double l_pwr, double r_pwr) {
         DRIVE_LF.setPower(l_pwr);
         DRIVE_LB.setPower(l_pwr);
         DRIVE_RF.setPower(r_pwr);
         DRIVE_RB.setPower(r_pwr);
     }
 
-    public void setLiftPwr(float pwr) {
+    public void setLiftPwr(double pwr) {
         LIFT_LF.setPower(-pwr);
         LIFT_LB.setPower(-pwr);
         LIFT_RF.setPower(pwr);
