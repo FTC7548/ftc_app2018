@@ -114,7 +114,8 @@ public class TeleOP extends OpMode {
                 down_prevent = false;
                 Thread.sleep(250);
                 r.setLiftPwr(0.5F);
-                Thread.sleep(100);
+                // i think 100ms was too much
+                Thread.sleep(20);
                 r.setLiftPwr(-lift_pwr);
                 processing = false;
             } catch (Exception e) {
