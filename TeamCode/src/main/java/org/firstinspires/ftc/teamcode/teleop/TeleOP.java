@@ -57,15 +57,12 @@ public class TeleOP extends OpMode {
     }
 
     public void lift() {
-        if(gamepad2.left_bumper) {
-            r.LIFT_LF.setPower(1);
-            r.LIFT_RF.setPower(1);
-        } else if(gamepad2.left_trigger > 0.5) {
-            r.LIFT_LF.setPower(0);
-            r.LIFT_RF.setPower(0);
+        if(gamepad1.left_bumper) {
+            r.setLiftPwr(1);
+        } else if (gamepad1.left_trigger > 0.5) {
+            r.setLiftPwr(-1);
         } else {
-            r.LIFT_LF.setPower(-1);
-            r.LIFT_RF.setPower(-1);
+            r.setLiftPwr(0);
         }
     }
 }

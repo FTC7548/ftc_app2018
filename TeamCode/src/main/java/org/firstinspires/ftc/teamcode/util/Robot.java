@@ -89,6 +89,13 @@ public class Robot {
         DRIVE_RB.setPower(r_pwr);
     }
 
+    public void setLiftPwr(float pwr) {
+        LIFT_LF.setPower(-pwr);
+        LIFT_LB.setPower(-pwr);
+        LIFT_RF.setPower(pwr);
+        LIFT_RB.setPower(pwr);
+    }
+
     /**
      * Sets the motor mode for the four drive motors
      * @param mode Mode for drive motors
