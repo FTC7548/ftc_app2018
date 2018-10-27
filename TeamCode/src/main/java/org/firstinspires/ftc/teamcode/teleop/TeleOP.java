@@ -259,9 +259,9 @@ public class TeleOP extends OpMode {
 
     public void toggleDump() {
         if (dump_toggled) {
-            r.DUMP.setPosition(1);
+            r.DUMP.setPosition(0.2);
         } else {
-            r.DUMP.setPosition(0);
+            r.DUMP.setPosition(.55);
         }
         dump_toggled = !dump_toggled;
     }

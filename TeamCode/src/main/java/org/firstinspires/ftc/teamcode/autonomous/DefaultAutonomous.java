@@ -15,11 +15,9 @@ public class DefaultAutonomous extends AutonomousOpMode {
         sleep(750);
         r.setLiftPwr(0);
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
-        driveTimeout(0.5, .5);
-        turnUntilHeading(235, 0.5, 1, 3);
-        driveTimeout(-0.5,  .5);
-        r.PIVOT_L.setPosition(0);
-        r.PIVOT_R.setPosition(1);
+        driveTimeout(0.5, .25);
+        //turnUntilHeading(1, 0.5, 1, 3);
+        r.FILTER.setPosition(.65); //  other one is .95
         /*
         cameraLook();
         switch (bestGoldGuess()) {
