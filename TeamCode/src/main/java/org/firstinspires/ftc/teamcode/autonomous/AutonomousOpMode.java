@@ -326,11 +326,11 @@ public abstract class AutonomousOpMode extends LinearOpMode {
 
         setCameraPosition(CameraPosition.LEFT);
         sleep(1500);
-        setCounts(1);
+        setCounts(0);
         sleep(250);
         setCameraPosition(CameraPosition.CENTER);
         sleep(1500);
-        setCounts(0);
+        setCounts(1);
         sleep(250);
         setCameraPosition(CameraPosition.RIGHT);
         sleep(1500);
