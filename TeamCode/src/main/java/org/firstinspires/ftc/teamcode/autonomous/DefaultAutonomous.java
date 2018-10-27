@@ -12,10 +12,15 @@ public class DefaultAutonomous extends AutonomousOpMode {
         r.setLiftPwr(-0.5);
         sleep(100);
         r.setLiftPwr(0.5);
-        sleep(1500);
+        sleep(750);
         r.setLiftPwr(0);
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
-        drive(-5, 0.5, 3);
+        driveTimeout(0.5, .5);
+        turnUntilHeading(235, 0.5, 1, 3);
+        driveTimeout(-0.5,  .5);
+        r.PIVOT_L.setPosition(0);
+        r.PIVOT_R.setPosition(1);
+        /*
         cameraLook();
         switch (bestGoldGuess()) {
             case 0: // do stuff for left
@@ -29,7 +34,7 @@ public class DefaultAutonomous extends AutonomousOpMode {
                 dragLeftTurnHeading(-90, 0.4, 1, 3);
                 dragRightTurnHeading(0, 0.4, 1, 3);
 
-        }
+        }*/
 
     }
 

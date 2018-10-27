@@ -21,10 +21,25 @@ public class TeleOP extends OpMode {
     private ToggleServo pitch;
     private boolean moving_down, down_prevent;
 
+    public boolean x_pressed = false;
+    public boolean prevent_down_toggled = false;
+
+    public boolean a_pressed = false;
+    public boolean prevent_up_toggled = false;
+
+    public boolean b_pressed = false;
+    public boolean pivot_toggled = false;
+
+    public boolean y_pressed = false;
+    public boolean dump_toggled = false;
+
+
     public void init() {
         r = new Robot(hardwareMap);
         r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         down_prevent = false;
+
+
 
     }
 
@@ -36,7 +51,13 @@ public class TeleOP extends OpMode {
         // graber.update();
         drive();
         lift();
-
+        ratchet();
+        extend();
+        intake();
+        pivot();
+        telemetry();
+        dump();
+        /*
         if (gamepad1.x)
             r.PHONE_YAW.setPosition(0);
 
@@ -44,7 +65,7 @@ public class TeleOP extends OpMode {
             r.PHONE_PITCH.setPosition(0);
         else
             r.PHONE_PITCH.setPosition(1);
-
+            */
     }
 
     /**
@@ -64,7 +85,55 @@ public class TeleOP extends OpMode {
     boolean processing = false;
 
     public void lift() {
-        if (gamepad1.right_bumper)
+        if(gamepad1.left_bumper && !prevent_up_toggled) {
+            r.setLiftPwr(-1);
+        } else if(gamepad1.left_trigger > 0.5 && !prevent_down_toggled) {
+            r.setLiftPwr(1);
+        } else {
+            r.setLiftPwr(0);
+        }
+    }
+
+    public void ratchet() {
+        if (gamepad1.x) {
+            if (!x_pressed) {
+                togglePreventDown();
+                x_pressed = true;
+            }
+        } else {
+            x_pressed = false;
+        }
+        if (gamepad1.a) {
+            if (!a_pressed) {
+                togglePreventUp();
+                a_pressed = true;
+            }
+        } else {
+            a_pressed = false;
+        }
+    }
+
+    public void togglePreventDown() {
+        if (prevent_down_toggled) {
+            r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
+        } else {
+            r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
+        }
+        prevent_down_toggled = !prevent_down_toggled;
+    }
+
+    public void togglePreventUp() {
+        if (prevent_up_toggled) {
+            r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
+        } else {
+            r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
+        }
+        prevent_up_toggled = !prevent_up_toggled;
+    }
+
+    /*
+    public void lift() {
+        if (gamepad1.y)
             lift_pwr = 0.5;
         else
             lift_pwr = 1;
@@ -128,4 +197,78 @@ public class TeleOP extends OpMode {
 
         }
     }
+    */
+    public void extend() {
+        if (gamepad1.dpad_up) {
+            r.EXTEND_L.setPower(-0.7);
+            r.EXTEND_R.setPower(-0.7);
+        } else if (gamepad1.dpad_down) {
+            r.EXTEND_L.setPower(0.7);
+            r.EXTEND_R.setPower(0.7);
+        } else {
+            r.EXTEND_L.setPower(0);
+            r.EXTEND_R.setPower(0);
+        }
+    }
+
+    public void intake() {
+        if (gamepad1.right_bumper) {
+            r.INTAKE_L.setPower(-0.7);
+            r.INTAKE_R.setPower(0.7);
+        } else if (gamepad1.right_trigger > 0.5) {
+            r.INTAKE_L.setPower(-0.7);
+            r.INTAKE_R.setPower(0.7);
+        } else {
+            r.INTAKE_L.setPower(0);
+            r.INTAKE_R.setPower(0);
+        }
+    }
+
+    public void pivot() {
+        if (gamepad1.b) {
+            if (!b_pressed) {
+                togglePivot();
+                b_pressed = true;
+            }
+        } else {
+            b_pressed = false;
+        }
+    }
+
+    public void togglePivot() {
+        if (pivot_toggled) {
+            r.PIVOT_L.setPosition(1);
+            r.PIVOT_R.setPosition(0);
+        } else {
+            r.PIVOT_L.setPosition(0);
+            r.PIVOT_R.setPosition(1);
+        }
+        pivot_toggled = !pivot_toggled;
+    }
+
+    public void dump() {
+        if (gamepad1.left_stick_y > 0.5) {
+            if (!y_pressed) {
+                toggleDump();
+                y_pressed = true;
+            }
+        } else {
+            y_pressed = false;
+        }
+    }
+
+    public void toggleDump() {
+        if (dump_toggled) {
+            r.DUMP.setPosition(1);
+        } else {
+            r.DUMP.setPosition(0);
+        }
+        dump_toggled = !dump_toggled;
+    }
+
+    public void telemetry() {
+        telemetry.addData("ratchets", "Up: %s, Down: %s", prevent_up_toggled, prevent_down_toggled);
+        telemetry.update();
+    }
+
 }

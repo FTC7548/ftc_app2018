@@ -62,14 +62,14 @@ public abstract class AutonomousOpMode extends LinearOpMode {
     public void drive(double inches, double pwr, double timeout) {
         if (!opModeIsActive()) return;
         r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        int newLeftTicks = r.DRIVE_LF.getCurrentPosition() + (int)(inches * PPI);
-        int newRightTicks = r.DRIVE_LB.getCurrentPosition() + (int)(inches * PPI);
+        int newLeftTicks = r.DRIVE_LB.getCurrentPosition() + (int)(inches * PPI);
+        int newRightTicks = r.DRIVE_RB.getCurrentPosition() + (int)(inches * PPI);
         runtime.reset();
         if (inches > 0) {
             setPwrNoAbs(pwr);
-            while (r.DRIVE_LF.getCurrentPosition() < newLeftTicks && r.DRIVE_RB.getCurrentPosition()
+            while (r.DRIVE_LB.getCurrentPosition() < newLeftTicks && r.DRIVE_RB.getCurrentPosition()
                     < newRightTicks && runtime.seconds() < timeout) {
-                telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LF.getCurrentPosition(),
+                telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LB.getCurrentPosition(),
                         r.DRIVE_RB.getCurrentPosition());
                 telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
                 telemetry.update();
@@ -79,9 +79,9 @@ public abstract class AutonomousOpMode extends LinearOpMode {
             }
         } else {
             setPwrNoAbs(-pwr);
-            while (r.DRIVE_LF.getCurrentPosition() > newLeftTicks && r.DRIVE_RB.getCurrentPosition()
+            while (r.DRIVE_LB.getCurrentPosition() > newLeftTicks && r.DRIVE_RB.getCurrentPosition()
                     > newRightTicks && runtime.seconds() < timeout) {
-                telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LF.getCurrentPosition(),
+                telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LB.getCurrentPosition(),
                         r.DRIVE_RB.getCurrentPosition());
                 telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
                 telemetry.update();
@@ -100,8 +100,6 @@ public abstract class AutonomousOpMode extends LinearOpMode {
      */
     private void setTarget(int lf, int rt) {
         r.DRIVE_LB.setTargetPosition(lf);
-        r.DRIVE_LF.setTargetPosition(lf);
-        r.DRIVE_RF.setTargetPosition(rt);
         r.DRIVE_RB.setTargetPosition(rt);
     }
 
@@ -232,6 +230,21 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         }
         resetEnc();
         setPwr(0);
+    }
+
+    public void driveTimeout(double pwr, double timeout) {
+        if (!opModeIsActive()) return;
+        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        runtime.reset();
+        r.setDrivePwr(pwr, pwr);
+        while (runtime.seconds() < timeout == opModeIsActive()) {
+            telemetry.addData("Time", "%s s / %s s", runtime.seconds(), timeout);
+            telemetry.update();
+            if (this.isStopRequested()) {
+                return;
+            }
+        }
+        r.setDrivePwr(0, 0);
     }
 
     /**

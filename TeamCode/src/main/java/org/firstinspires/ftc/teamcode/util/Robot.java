@@ -5,6 +5,7 @@ import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.CRServo;
 
 /**
  * Robot is the wrapper class to keep track of all of the hardware components in the same place.
@@ -44,6 +45,17 @@ public class Robot {
     public Servo        PREVENT_UP;
     public Servo        PREVENT_DOWN;
 
+    public CRServo     EXTEND_L,
+                        EXTEND_R;
+
+    public CRServo     INTAKE_L,
+                        INTAKE_R;
+
+    public Servo       PIVOT_L,
+                            PIVOT_R,
+                            FILTER,
+                            DUMP;
+
     /**
      * Internal gyro in the REV module
      */
@@ -73,6 +85,19 @@ public class Robot {
 
         PREVENT_UP = hm.servo.get("upratchet");
         PREVENT_DOWN = hm.servo.get("downratchet");
+
+        EXTEND_L = hm.crservo.get("extend_l");
+        EXTEND_R = hm.crservo.get("extend_r");
+
+        INTAKE_L = hm.crservo.get("intake_l");
+        INTAKE_R = hm.crservo.get("intake_r");
+
+        PIVOT_L = hm.servo.get("pivot_l");
+        PIVOT_R = hm.servo.get("pivot_r");
+
+        FILTER = hm.servo.get("filter");
+
+        DUMP = hm.servo.get("dump");
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
@@ -119,8 +144,8 @@ public class Robot {
     public enum RatchetPosition {
         PREVUP_UP (.1),
         PREVUP_DOWN (.45),
-        PREVDOWN_UP (.85),
-        PREVDOWN_DOWN (1);
+        PREVDOWN_UP (.1),
+        PREVDOWN_DOWN (.35);
 
         public final double position;
 

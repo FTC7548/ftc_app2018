@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.test;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.teamcode.autonomous.AutonomousOpMode;
@@ -11,13 +12,16 @@ public class ServoTest extends AutonomousOpMode {
 
     public void startOpMode() {
 
-        r.PREVENT_UP.setPosition(1);
-        r.PREVENT_DOWN.setPosition(0.5);
+        Servo servo1 = r.DUMP;
+        Servo servo2 = r.PIVOT_R;
+
+        servo1.setPosition(1);
+        servo2.setPosition(0);
 
         while (opModeIsActive()) {
 
-            double new_pitch = r.PREVENT_UP.getPosition();
-            double new_yaw = r.PREVENT_DOWN.getPosition();
+            double new_pitch = servo1.getPosition();
+            double new_yaw = servo2.getPosition();
 
             if (gamepad1.x) {
                 new_pitch += 0.05;
@@ -35,11 +39,11 @@ public class ServoTest extends AutonomousOpMode {
                 new_yaw -= 0.05;
             }
 
-            r.PREVENT_UP.setPosition(Range.clip(new_pitch, 0, 1));
-            r.PREVENT_DOWN.setPosition(Range.clip(new_yaw, 0, 1));
+            servo1.setPosition(Range.clip(new_pitch, 0, 1));
+            servo2.setPosition(Range.clip(new_yaw, 0, 1));
 
             telemetry.addData("servo pos", "up: %s, down: %s",
-                    r.PREVENT_UP.getPosition(), r.PREVENT_DOWN.getPosition());
+                    servo1.getPosition(), servo2.getPosition());
             telemetry.update();
             sleep(250);
             idle();
