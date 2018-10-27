@@ -76,16 +76,19 @@ public class TeleOP extends OpMode {
             } else {
                 r.setLiftPwr(lift_pwr);
             }
-        } else if (gamepad1.left_trigger > 0.5) {
-            if (!moving_down && !processing) {
-                new Thread(new DownDelay()).start();
-                processing = true;
-            } else {
-                r.setLiftPwr(-lift_pwr);
+
+        } else if (gamepad1.left_trigger > 0.5) { // if lift should be moved down
+            if (!processing) {
+                if (!moving_down) {
+                    new Thread(new DownDelay()).start();
+
+                } else {
+                    r.setLiftPwr(-lift_pwr);
+                }
             }
         } else { // fixed position
             r.setLiftPwr(0);
-            r.PREVENT_DOWN.setPosition(1);
+            r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
             down_prevent = true;
             moving_down = false;
         }
@@ -95,8 +98,8 @@ public class TeleOP extends OpMode {
         @Override
         public void run() {
             try {
-                r.PREVENT_DOWN.setPosition(.85);
-                Thread.sleep(250);
+                r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
+                Thread.sleep(100);
                 down_prevent = false;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -110,9 +113,10 @@ public class TeleOP extends OpMode {
         public void run() {
             try {
                 moving_down = true;
-                r.PREVENT_DOWN.setPosition(.85);
+                processing = true;
+                r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
                 down_prevent = false;
-                Thread.sleep(250);
+                Thread.sleep(100);
                 r.setLiftPwr(0.5F);
                 // i think 100ms was too much
                 Thread.sleep(20);

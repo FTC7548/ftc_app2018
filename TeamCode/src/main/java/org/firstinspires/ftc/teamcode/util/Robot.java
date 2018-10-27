@@ -116,4 +116,17 @@ public class Robot {
         DRIVE_RB.setMode(mode);
     }
 
+    public enum RatchetPosition {
+        PREVUP_UP (.1),
+        PREVUP_DOWN (.45),
+        PREVDOWN_UP (.85),
+        PREVDOWN_DOWN (1);
+
+        public final double position;
+
+        RatchetPosition(double position) {
+            this.position = position;
+        }
+    }
+
 }

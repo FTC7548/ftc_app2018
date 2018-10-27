@@ -48,6 +48,8 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         waitForStart();
         pipeline.enable();
         setCameraPosition(CameraPosition.DOWN);
+        sleep(1000);
+
         startOpMode();
     }
 
@@ -284,6 +286,17 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         return cumulative_size / num;
     }
 
+    public double maxContourSize() {
+        double max = 0;
+        for (MatOfPoint c : pipeline.getContours()) {
+            if (c.size().area() > max) {
+                max = c.size().area();
+            }
+
+        }
+        return max;
+    }
+
     public enum CameraPosition {
         // pitch, yaw
         CENTER (0.35, 0.55),
@@ -297,8 +310,6 @@ public abstract class AutonomousOpMode extends LinearOpMode {
             this.pitch = pitch;
             this.yaw = yaw;
         }
-
-
     }
 
     public void setCameraPosition(CameraPosition pos) {
@@ -306,5 +317,43 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         r.PHONE_YAW.setPosition(pos.yaw);
 
     }
+
+    double[] counts = new double[3];
+    double[] avg_sizes = new double[3];
+    double[] max_sizes = new double[3];
+
+    public void cameraLook() {
+
+        setCameraPosition(CameraPosition.LEFT);
+        sleep(1500);
+        setCounts(1);
+        sleep(250);
+        setCameraPosition(CameraPosition.CENTER);
+        sleep(1500);
+        setCounts(0);
+        sleep(250);
+        setCameraPosition(CameraPosition.RIGHT);
+        sleep(1500);
+        setCounts(2);
+        sleep(250);
+        setCameraPosition(CameraPosition.DOWN);
+
+
+        telemetry.clear();
+        telemetry.clearAll();
+        for (int i = 0; i < 3; i++) {
+            telemetry.addData("POS" + i, "size: %s, count: %s", avg_sizes[i], counts[i]);
+        }
+        telemetry.update();
+        sleep(15000);
+
+    }
+
+    public void setCounts(int index) {
+        counts[index] = contourCount();
+        avg_sizes[index] = avgContourSize();
+        max_sizes[index] = maxContourSize();
+    }
+
 
 }
