@@ -33,6 +33,9 @@ public class TeleOP extends OpMode {
     public boolean y_pressed = false;
     public boolean dump_toggled = false;
 
+    public boolean filter_pressed = false;
+    public boolean filter_toggled = false;
+
 
     public void init() {
         r = new Robot(hardwareMap);
@@ -57,6 +60,7 @@ public class TeleOP extends OpMode {
         pivot();
         telemetry();
         dump();
+        filter();
         /*
         if (gamepad1.x)
             r.PHONE_YAW.setPosition(0);
@@ -69,33 +73,36 @@ public class TeleOP extends OpMode {
     }
 
     /**
-     * Update the power of the drive motors based on the input from the joystics
+     * Update the power of the drive motors based on the input from the joysticks
      * Gamepad 1
      */
     public void drive() {
-        float l_pwr = gamepad1.left_stick_y * Math.abs(gamepad1.left_stick_y);
-        float r_pwr = gamepad1.right_stick_y * Math.abs(gamepad1.right_stick_y);
+        float r_pwr = -gamepad2.left_stick_y * Math.abs(gamepad2.left_stick_y);
+        float l_pwr = -gamepad2.right_stick_y * Math.abs(gamepad2.right_stick_y);
+        if (gamepad2.right_bumper) {
+            l_pwr *= 0.5;
+            r_pwr *= 0.5;
+        }
+
         telemetry.addData("drive pwr", "L: %s, R: %s", l_pwr, r_pwr);
         r.setDrivePwr(l_pwr, r_pwr);
     }
 
-    public double lift_pwr;
-
-    private Thread delay = new Thread();
-    boolean processing = false;
-
     public void lift() {
-        if(gamepad1.left_bumper && !prevent_up_toggled) {
-            r.setLiftPwr(-1);
-        } else if(gamepad1.left_trigger > 0.5 && !prevent_down_toggled) {
-            r.setLiftPwr(1);
+        double lift_pwr = 1;
+        if (gamepad2.right_bumper) lift_pwr *= 0.5;
+        if(gamepad2.left_bumper && !prevent_down_toggled) { // go down
+            r.setLiftPwr(lift_pwr);
+        } else if(gamepad2.left_trigger > 0.5 && !prevent_up_toggled) { // go up
+            r.setLiftPwr(-lift_pwr);
+
         } else {
             r.setLiftPwr(0);
         }
     }
 
     public void ratchet() {
-        if (gamepad1.x) {
+        if (gamepad2.x) {
             if (!x_pressed) {
                 togglePreventDown();
                 x_pressed = true;
@@ -103,7 +110,7 @@ public class TeleOP extends OpMode {
         } else {
             x_pressed = false;
         }
-        if (gamepad1.a) {
+        if (gamepad2.a) {
             if (!a_pressed) {
                 togglePreventUp();
                 a_pressed = true;
@@ -191,7 +198,7 @@ public class TeleOP extends OpMode {
                 Thread.sleep(20);
                 r.setLiftPwr(-lift_pwr);
                 processing = false;
-            } catch (Exception e) {
+            } catch (Exception e) {b
                 e.printStackTrace();
             }
 
@@ -200,10 +207,10 @@ public class TeleOP extends OpMode {
     */
     public void extend() {
         if (gamepad1.dpad_up) {
-            r.EXTEND_L.setPower(-0.7);
+            r.EXTEND_L.setPower(0.7);
             r.EXTEND_R.setPower(-0.7);
         } else if (gamepad1.dpad_down) {
-            r.EXTEND_L.setPower(0.7);
+            r.EXTEND_L.setPower(-0.7);
             r.EXTEND_R.setPower(0.7);
         } else {
             r.EXTEND_L.setPower(0);
@@ -216,8 +223,8 @@ public class TeleOP extends OpMode {
             r.INTAKE_L.setPower(-0.7);
             r.INTAKE_R.setPower(0.7);
         } else if (gamepad1.right_trigger > 0.5) {
-            r.INTAKE_L.setPower(-0.7);
-            r.INTAKE_R.setPower(0.7);
+            r.INTAKE_L.setPower(0.7);
+            r.INTAKE_R.setPower(-0.7);
         } else {
             r.INTAKE_L.setPower(0);
             r.INTAKE_R.setPower(0);
@@ -225,7 +232,7 @@ public class TeleOP extends OpMode {
     }
 
     public void pivot() {
-        if (gamepad1.b) {
+        if (gamepad2.b) {
             if (!b_pressed) {
                 togglePivot();
                 b_pressed = true;
@@ -237,9 +244,11 @@ public class TeleOP extends OpMode {
 
     public void togglePivot() {
         if (pivot_toggled) {
+            r.FILTER.setPosition(.65);
             r.PIVOT_L.setPosition(1);
             r.PIVOT_R.setPosition(0);
         } else {
+            r.FILTER.setPosition(.65);
             r.PIVOT_L.setPosition(0);
             r.PIVOT_R.setPosition(1);
         }
@@ -247,7 +256,7 @@ public class TeleOP extends OpMode {
     }
 
     public void dump() {
-        if (gamepad1.left_stick_y > 0.5) {
+        if (gamepad1.y) {
             if (!y_pressed) {
                 toggleDump();
                 y_pressed = true;
@@ -260,11 +269,34 @@ public class TeleOP extends OpMode {
     public void toggleDump() {
         if (dump_toggled) {
             r.DUMP.setPosition(0.2);
-        } else {
-            r.DUMP.setPosition(.55);
+        } else{
+            r.DUMP.setPosition(0.55);
         }
         dump_toggled = !dump_toggled;
     }
+
+    public void filter() {
+        if (gamepad1.left_bumper) {
+            if (!filter_pressed) {
+                toggleFilter();
+                filter_pressed = true;
+            }
+        } else {
+            filter_pressed = false;
+        }
+    }
+
+    public void toggleFilter() {
+        if (filter_toggled) {
+            r.FILTER.setPosition(0.65);
+        } else {
+            r.FILTER.setPosition(0.95);
+        }
+
+        filter_toggled = !filter_toggled;
+    }
+
+
 
     public void telemetry() {
         telemetry.addData("ratchets", "Up: %s, Down: %s", prevent_up_toggled, prevent_down_toggled);

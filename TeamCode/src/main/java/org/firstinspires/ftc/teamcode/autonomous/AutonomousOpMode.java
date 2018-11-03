@@ -237,7 +237,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         runtime.reset();
         r.setDrivePwr(pwr, pwr);
-        while (runtime.seconds() < timeout == opModeIsActive()) {
+        while (runtime.seconds() < timeout || opModeIsActive()) {
             telemetry.addData("Time", "%s s / %s s", runtime.seconds(), timeout);
             telemetry.update();
             if (this.isStopRequested()) {

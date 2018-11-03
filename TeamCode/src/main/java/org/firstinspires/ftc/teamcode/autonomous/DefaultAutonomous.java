@@ -15,7 +15,7 @@ public class DefaultAutonomous extends AutonomousOpMode {
         sleep(750);
         r.setLiftPwr(0);
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
-        driveTimeout(0.5, .25);
+        driveTimeout(0.25, 4);
         //turnUntilHeading(1, 0.5, 1, 3);
         r.FILTER.setPosition(.65); //  other one is .95
         /*

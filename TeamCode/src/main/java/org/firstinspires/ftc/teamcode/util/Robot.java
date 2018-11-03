@@ -71,6 +71,10 @@ public class Robot {
         DRIVE_RF = hm.dcMotor.get("drive_rf");
         DRIVE_LB = hm.dcMotor.get("drive_lb");
         DRIVE_RB = hm.dcMotor.get("drive_rb");
+        DRIVE_LF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        DRIVE_LB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        DRIVE_RF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        DRIVE_RB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         DRIVE_RF.setDirection(DcMotor.Direction.REVERSE);
         DRIVE_RB.setDirection(DcMotor.Direction.REVERSE);
