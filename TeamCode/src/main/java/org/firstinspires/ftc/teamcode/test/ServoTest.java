@@ -12,8 +12,8 @@ public class ServoTest extends AutonomousOpMode {
 
     public void startOpMode() {
 
-        Servo servo1 = r.DUMP;
-        Servo servo2 = r.FILTER;
+        Servo servo1 = r.PIVOT_L;
+        Servo servo2 = r.DUMP;
 
         servo1.setPosition(1);
         servo2.setPosition(0);

@@ -36,14 +36,24 @@ public class TeleOP extends OpMode {
     public boolean filter_pressed = false;
     public boolean filter_toggled = false;
 
+    public Thread upProcess = new Thread(new Runnable() {
+        public void run() {
+
+        }
+    });
+
+    public Thread downProcess = new Thread(new Runnable() {
+        public void run() {
+
+        }
+    });
 
     public void init() {
         r = new Robot(hardwareMap);
         r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        down_prevent = false;
-
-
-
+        down_prevent = true;
+        upProcess.run();
+        downProcess.run();
     }
 
     public void start() {
@@ -77,8 +87,8 @@ public class TeleOP extends OpMode {
      * Gamepad 1
      */
     public void drive() {
-        float r_pwr = -gamepad2.left_stick_y * Math.abs(gamepad2.left_stick_y);
-        float l_pwr = -gamepad2.right_stick_y * Math.abs(gamepad2.right_stick_y);
+        float l_pwr = gamepad2.left_stick_y * Math.abs(gamepad2.left_stick_y);
+        float r_pwr = gamepad2.right_stick_y * Math.abs(gamepad2.right_stick_y);
         if (gamepad2.right_bumper) {
             l_pwr *= 0.5;
             r_pwr *= 0.5;
@@ -88,99 +98,71 @@ public class TeleOP extends OpMode {
         r.setDrivePwr(l_pwr, r_pwr);
     }
 
+    boolean up_released = false;
+    int cycle_count_for_release = 0;
+
+    boolean servoEngaged = true;
+
     public void lift() {
-        double lift_pwr = 1;
-        if (gamepad2.right_bumper) lift_pwr *= 0.5;
-        if(gamepad2.left_bumper && !prevent_down_toggled) { // go down
-            r.setLiftPwr(lift_pwr);
-        } else if(gamepad2.left_trigger > 0.5 && !prevent_up_toggled) { // go up
-            r.setLiftPwr(-lift_pwr);
-
-        } else {
-            r.setLiftPwr(0);
-        }
-    }
-
-    public void ratchet() {
-        if (gamepad2.x) {
-            if (!x_pressed) {
-                togglePreventDown();
-                x_pressed = true;
-            }
-        } else {
-            x_pressed = false;
-        }
-        if (gamepad2.a) {
-            if (!a_pressed) {
-                togglePreventUp();
-                a_pressed = true;
-            }
-        } else {
-            a_pressed = false;
-        }
-    }
-
-    public void togglePreventDown() {
-        if (prevent_down_toggled) {
-            r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
-        } else {
-            r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
-        }
-        prevent_down_toggled = !prevent_down_toggled;
-    }
-
-    public void togglePreventUp() {
-        if (prevent_up_toggled) {
-            r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
-        } else {
-            r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
-        }
-        prevent_up_toggled = !prevent_up_toggled;
-    }
-
-    /*
-    public void lift() {
-        if (gamepad1.y)
-            lift_pwr = 0.5;
-        else
-            lift_pwr = 1;
-
-        if (gamepad1.left_bumper) {
-            moving_down = false;
-            if (down_prevent) {
-                new Thread(new UnlockDelay()).start();
-            } else {
-                r.setLiftPwr(lift_pwr);
-            }
-
-        } else if (gamepad1.left_trigger > 0.5) { // if lift should be moved down
-            if (!processing) {
-                if (!moving_down) {
-                    new Thread(new DownDelay()).start();
-
+        if (gamepad2.left_bumper) { // up
+            if (servoEngaged) {
+                if (!upProcess.isAlive()) {
+                    upProcess = new Thread(new UnlockDelay());
+                    upProcess.start();
+                }
+            } else if (!upProcess.isAlive()){
+                if (gamepad2.right_bumper) {
+                    r.setLiftPwr(0.5);
                 } else {
-                    r.setLiftPwr(-lift_pwr);
+                    r.setLiftPwr(1);
                 }
             }
-        } else { // fixed position
+
+        } else if (gamepad2.left_trigger > 0.5) { // down
+            if (servoEngaged) {
+                if (!upProcess.isAlive()) {
+                    downProcess = new Thread(new DownDelay());
+                    downProcess.start();
+                }
+            } else if (!downProcess.isAlive()){
+                if (gamepad2.right_bumper) {
+                    r.setLiftPwr(-1);
+                } else {
+                    r.setLiftPwr(-0.25);
+                }
+            }
+
+        } else { // stop
+            if (gamepad2.a) {
+                disengageRatchet();
+            } else {
+                engageRatchet();
+            }
             r.setLiftPwr(0);
-            r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
-            down_prevent = true;
-            moving_down = false;
         }
+    }
+
+    public void engageRatchet() {
+        r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
+        r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
+        servoEngaged = true;
+    }
+
+    public void disengageRatchet() {
+        r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
+        r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
+        servoEngaged = false;
     }
 
     public class UnlockDelay implements Runnable {
         @Override
         public void run() {
             try {
-                r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
-                Thread.sleep(100);
-                down_prevent = false;
+                disengageRatchet();
+                Thread.sleep(200);
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
         }
     }
 
@@ -188,30 +170,95 @@ public class TeleOP extends OpMode {
         @Override
         public void run() {
             try {
-                moving_down = true;
-                processing = true;
-                r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
-                down_prevent = false;
+                disengageRatchet();
                 Thread.sleep(100);
                 r.setLiftPwr(0.5F);
                 // i think 100ms was too much
-                Thread.sleep(20);
-                r.setLiftPwr(-lift_pwr);
-                processing = false;
-            } catch (Exception e) {b
+                Thread.sleep(100);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
         }
     }
+
+
+
+    /*
+    public void lift() {
+        double lift_pwr = 1;
+        if (gamepad2.right_bumper)
+            lift_pwr *= 0.5;
+
+        if(gamepad2.left_bumper && !prevent_down_toggled) { // move up
+            cycle_count_for_release = 0;
+            if (down_prevent) {
+                new Thread(new UnlockDelay()).start();
+            } else {
+                r.setLiftPwr(lift_pwr);
+            }
+
+        } else if (gamepad2.left_trigger > 0.5 && !prevent_up_toggled) { // move down
+            up_released = false;
+
+            r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
+            r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
+
+            if (cycle_count_for_release < 5) {
+                r.setLiftPwr(-lift_pwr);
+            } else {
+                r.setLiftPwr(lift_pwr);
+                cycle_count_for_release++;
+            }
+
+        } else {
+            cycle_count_for_release = 0;
+            up_released = false;
+            r.setLiftPwr(0);
+            r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
+            r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
+            down_prevent = true;
+        }
+    }
+
+
+
     */
+
+    public void ratchet() {
+        /*if (gamepad2.a) {
+            if (!x_pressed) {
+                toggleRatchet();
+                x_pressed = true;
+            }
+        } else {
+            x_pressed = false;
+        } */ // un comment this if we need the toggle back
+
+        if (gamepad2.x) {
+            r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
+            r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
+        }
+    }
+
+    public void toggleRatchet() {
+        if (prevent_down_toggled) {
+            r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
+            r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
+        } else {
+            r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
+            r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
+        }
+        prevent_down_toggled = !prevent_down_toggled;
+    }
+
     public void extend() {
         if (gamepad1.dpad_up) {
-            r.EXTEND_L.setPower(0.7);
-            r.EXTEND_R.setPower(-0.7);
-        } else if (gamepad1.dpad_down) {
             r.EXTEND_L.setPower(-0.7);
             r.EXTEND_R.setPower(0.7);
+        } else if (gamepad1.dpad_down) {
+            r.EXTEND_L.setPower(0.7);
+            r.EXTEND_R.setPower(-0.7);
         } else {
             r.EXTEND_L.setPower(0);
             r.EXTEND_R.setPower(0);
@@ -249,8 +296,8 @@ public class TeleOP extends OpMode {
             r.PIVOT_R.setPosition(0);
         } else {
             r.FILTER.setPosition(.65);
-            r.PIVOT_L.setPosition(0);
-            r.PIVOT_R.setPosition(1);
+            r.PIVOT_L.setPosition(0.15);
+            r.PIVOT_R.setPosition(.85);
         }
         pivot_toggled = !pivot_toggled;
     }
@@ -268,9 +315,9 @@ public class TeleOP extends OpMode {
 
     public void toggleDump() {
         if (dump_toggled) {
-            r.DUMP.setPosition(0.2);
+            r.DUMP.setPosition(0.53);
         } else{
-            r.DUMP.setPosition(0.55);
+            r.DUMP.setPosition(0.22);
         }
         dump_toggled = !dump_toggled;
     }

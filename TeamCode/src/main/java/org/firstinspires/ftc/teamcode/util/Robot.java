@@ -146,10 +146,10 @@ public class Robot {
     }
 
     public enum RatchetPosition {
-        PREVUP_UP (.1),
-        PREVUP_DOWN (.45),
-        PREVDOWN_UP (.1),
-        PREVDOWN_DOWN (.35);
+        PREVUP_UP (1),
+        PREVUP_DOWN (.9),
+        PREVDOWN_UP (0),
+        PREVDOWN_DOWN (.1);
 
         public final double position;
 
