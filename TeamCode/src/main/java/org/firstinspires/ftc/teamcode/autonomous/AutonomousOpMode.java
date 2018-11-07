@@ -11,6 +11,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.teamcode.util.Robot;
 import org.firstinspires.ftc.teamcode.vision.ObjDetectPipeline;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.Rect;
+import org.opencv.imgproc.Imgproc;
 
 import java.util.List;
 
@@ -90,6 +92,77 @@ public abstract class AutonomousOpMode extends LinearOpMode {
                 }
             }
         }
+        setPwr(0);
+    }
+
+    public void driveNew(double inches, double pwr, double timeout) {
+        if (!opModeIsActive()) return;
+        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        int newLeftTicks = r.DRIVE_LF.getCurrentPosition() + (int)(inches * PPI);
+        int newRightTicks = r.DRIVE_RB.getCurrentPosition() + (int)(inches * PPI);
+        runtime.reset();
+        if (inches > 0) {
+            setPwrNoAbs(pwr);
+            while (r.DRIVE_LF.getCurrentPosition() < newLeftTicks && r.DRIVE_RB.getCurrentPosition() < newRightTicks && runtime.seconds() < timeout) {
+                telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LF.getCurrentPosition(), r.DRIVE_RB.getCurrentPosition());
+                telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
+                telemetry.update();
+                if (this.isStopRequested()) {
+                    return;
+                }
+            }
+        } else {
+            setPwrNoAbs(-pwr);
+            while (r.DRIVE_LF.getCurrentPosition() > newLeftTicks && r.DRIVE_RB.getCurrentPosition() > newRightTicks && runtime.seconds() < timeout) {
+                telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LF.getCurrentPosition(), r.DRIVE_RB.getCurrentPosition());
+                telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
+                telemetry.update();
+                if (this.isStopRequested()) {
+                    return;
+                }
+            }
+        }
+
+        setPwr(0);
+    }
+
+    public void encTurn(double linches, double rinches, double pwr, double timeout) {
+        if (!opModeIsActive()) return;
+        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        int newLeftTicks = r.DRIVE_LF.getCurrentPosition() + (int)(linches * PPI);
+        int newRightTicks = r.DRIVE_RB.getCurrentPosition() + (int)(rinches * PPI);
+        runtime.reset();
+        double lpwr, rpwr;
+        lpwr = (linches > 0? pwr:-pwr);
+        rpwr = (rinches > 0? pwr:-pwr);
+        r.setDrivePwr(lpwr, rpwr);
+
+        while (!(Math.abs(r.DRIVE_LF.getCurrentPosition() - newLeftTicks) < 100 && Math.abs(r.DRIVE_RB.getCurrentPosition() - newRightTicks) < 100)
+                && runtime.seconds() < timeout && opModeIsActive()) {
+
+            if ((Math.abs(r.DRIVE_LF.getCurrentPosition() - newLeftTicks) < 100)) {
+                r.DRIVE_LB.setPower(0);
+                r.DRIVE_LF.setPower(0);
+            }
+
+            if ((Math.abs(r.DRIVE_RB.getCurrentPosition() - newRightTicks) < 100)) {
+                r.DRIVE_RB.setPower(0);
+                r.DRIVE_RF.setPower(0);
+            }
+
+            telemetry.addData("Turning", "%s | %s", linches, rinches);
+            telemetry.addData("Pwr", "%s | %s", r.DRIVE_LF.getPower(), r.DRIVE_RB.getPower());
+            telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LF.getCurrentPosition(), r.DRIVE_RB.getCurrentPosition());
+            telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
+            telemetry.addData("Diff", "%05d | %05d", r.DRIVE_LF.getCurrentPosition() - newLeftTicks,
+                    r.DRIVE_RB.getCurrentPosition() - newRightTicks);
+            telemetry.update();
+            if (this.isStopRequested()) {
+                return;
+            }
+        }
+
+
         setPwr(0);
     }
 
@@ -299,23 +372,32 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         return cumulative_size / num;
     }
 
-    public double maxContourSize() {
+    public double[] maxContourSize() {
         double max = 0;
+        double x = 0, y = 0;
+
         for (MatOfPoint c : pipeline.getContours()) {
             if (c.size().area() > max) {
-                max = c.size().area();
+                Rect boundingRect = Imgproc.boundingRect(c);
+                double xi = (boundingRect.x + boundingRect.width) / 2;
+                double yi = (boundingRect.x + boundingRect.width) / 2;
+                if (xi > 130 && xi < 200 && yi > 130 && yi < 200) {
+                    max = c.size().area();
+                    x=xi; y=yi;
+                }
             }
 
         }
-        return max;
+        double[] pos = {max, x, y};
+        return pos;
     }
 
     public enum CameraPosition {
         // pitch, yaw
-        CENTER (0.35, 0.55),
-        LEFT (0.35, 0.15),
-        RIGHT (0.4, 0.85),
-        DOWN (1, 0.45);
+        CENTER (0.75, 0.55),
+        LEFT (0.75, 0.25),
+        RIGHT (0.75, 0.8),
+        DOWN (0.85, 0.45);
 
         private final double pitch, yaw;
 
@@ -333,7 +415,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
 
     double[] counts = new double[3];
     double[] avg_sizes = new double[3];
-    double[] max_sizes = new double[3];
+    double[][] max_sizes = new double[3][3];
 
     public void cameraLook() {
 
@@ -355,10 +437,11 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         telemetry.clear();
         telemetry.clearAll();
         for (int i = 0; i < 3; i++) {
-            telemetry.addData("POS" + i, "size: %s, count: %s", avg_sizes[i], counts[i]);
+            telemetry.addData("POS" + i, "size: %s (%s, %s)", max_sizes[i][0], max_sizes[i][1], max_sizes[i][2]);
+
         }
         telemetry.update();
-        sleep(15000);
+        sleep(5000);
 
     }
 

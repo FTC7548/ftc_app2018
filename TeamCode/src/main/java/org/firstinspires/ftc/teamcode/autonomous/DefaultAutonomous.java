@@ -8,32 +8,31 @@ import org.firstinspires.ftc.teamcode.util.Robot;
 public class DefaultAutonomous extends AutonomousOpMode {
 
     public void startOpMode() {
-        r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
+        /*r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
         r.setLiftPwr(-0.5);
         sleep(100);
         r.setLiftPwr(0.5);
-        sleep(750);
+        sleep(1000);
         r.setLiftPwr(0);
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
         driveTimeout(0.25, 4);
         //turnUntilHeading(1, 0.5, 1, 3);
-        r.FILTER.setPosition(.65); //  other one is .95
-        /*
+        r.FILTER.setPosition(.65); //  other one is .95*/
+
+        drive(4.5, 0.3, 3);
+
         cameraLook();
-        switch (bestGoldGuess()) {
-            case 0: // do stuff for left
-                dragRightTurnHeading(90, 0.4, 1, 3);
-                dragLeftTurnHeading(0, 0.4, 1, 3);
-            case 1: // do stuff for center
+        int goldPos = bestGoldGuess();
+        if(goldPos == 0) {
+            drive(-1.5, 0.3, 3);
+            encTurn(10, -10, 0.7, 5);
+        } else if(goldPos == 1) {
+            drive(3, 0.5, 3);
+        } else if(goldPos == 2) {
+            drive(-1.5, 0.3, 3);
+            encTurn(-10, 10, 0.7, 5);
 
-                drive(10, 0.3, 3);
-
-            case 2: // do stuff for right
-                dragLeftTurnHeading(-90, 0.4, 1, 3);
-                dragRightTurnHeading(0, 0.4, 1, 3);
-
-        }*/
-
+        }
     }
 
     public int bestGoldGuess() {
@@ -41,7 +40,7 @@ public class DefaultAutonomous extends AutonomousOpMode {
         // 0 is left
         int pos = 0;
         for (int i = 0; i < 3; i++) {
-            if (max_sizes[i] > max_sizes[pos]) {
+            if (max_sizes[i][0] > max_sizes[pos][0]) {
                 pos = i;
             }
         }
