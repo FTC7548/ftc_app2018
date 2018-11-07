@@ -23,14 +23,24 @@ public class DefaultAutonomous extends AutonomousOpMode {
 
         cameraLook();
         int goldPos = bestGoldGuess();
-        if(goldPos == 0) {
+        if(goldPos == 0) { // left
             drive(-1.5, 0.3, 3);
-            encTurn(10, -10, 0.7, 5);
+            encTurn(4, -4, 0.7, 5);
+            drive(9 , 0.5, 3);
+            drive(-4, 0.5, 3);
+            encTurn(4, -4, 0.7, 5);
+            drive(12, 0.5, 3);
+            encTurn(4, -4, 0.5, 3);
+            drive(20, 0.5, 4);
+            encTurn(12, -12, 0.5, 4);
+            drive(3,0.5, 4);
+
         } else if(goldPos == 1) {
-            drive(3, 0.5, 3);
+            drive(3, 0.3, 3);
         } else if(goldPos == 2) {
             drive(-1.5, 0.3, 3);
-            encTurn(-10, 10, 0.7, 5);
+            encTurn(-4, 4, 0.7, 5);
+            drive(9, 0.5, 3);
 
         }
     }

@@ -441,7 +441,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
 
         }
         telemetry.update();
-        sleep(5000);
+        sleep(2000);
 
     }
 
