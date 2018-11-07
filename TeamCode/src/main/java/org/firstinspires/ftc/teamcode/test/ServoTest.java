@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.test;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
@@ -12,11 +11,11 @@ public class ServoTest extends AutonomousOpMode {
 
     public void startOpMode() {
 
-        Servo servo1 = r.DUMP;
-        Servo servo2 = r.FILTER;
+        Servo servo1 = r.PHONE_PITCH;
+        Servo servo2 = r.PHONE_YAW;
 
         servo1.setPosition(1);
-        servo2.setPosition(0);
+        servo2.setPosition(0.5);
 
         while (opModeIsActive()) {
 
@@ -44,6 +43,7 @@ public class ServoTest extends AutonomousOpMode {
 
             telemetry.addData("servo pos", "up: %s, down: %s",
                     servo1.getPosition(), servo2.getPosition());
+
             telemetry.update();
             sleep(250);
             idle();
