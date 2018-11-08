@@ -4,6 +4,8 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Position;
+import org.firstinspires.ftc.robotcore.external.navigation.Velocity;
 import org.firstinspires.ftc.teamcode.util.Robot;
 import org.firstinspires.ftc.teamcode.util.ToggleServo;
 
@@ -49,6 +51,7 @@ public class TeleOP extends OpMode {
     });
 
     public void init() {
+
         r = new Robot(hardwareMap);
         r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         down_prevent = true;
@@ -57,6 +60,7 @@ public class TeleOP extends OpMode {
     }
 
     public void start() {
+        r.IMU.startAccelerationIntegration(new Position(), new Velocity(), 100);
         // Stuff will go here later maybe? probably not idk
     }
 
@@ -71,6 +75,7 @@ public class TeleOP extends OpMode {
         telemetry();
         dump();
         filter();
+
         /*
         if (gamepad1.x)
             r.PHONE_YAW.setPosition(0);
@@ -346,7 +351,9 @@ public class TeleOP extends OpMode {
 
 
     public void telemetry() {
+
         telemetry.addData("ratchets", "Up: %s, Down: %s", prevent_up_toggled, prevent_down_toggled);
+        telemetry.addData("gyro", "(x: %s, y: %s, z: %s", r.IMU.getPosition().x, r.IMU.getPosition().y, r.IMU.getPosition().z);
         telemetry.update();
     }
 

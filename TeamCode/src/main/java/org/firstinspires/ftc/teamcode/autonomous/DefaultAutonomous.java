@@ -8,6 +8,7 @@ import org.firstinspires.ftc.teamcode.util.Robot;
 public class DefaultAutonomous extends AutonomousOpMode {
 
     public void startOpMode() {
+
         /*r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
         r.setLiftPwr(-0.5);
         sleep(100);
@@ -21,28 +22,55 @@ public class DefaultAutonomous extends AutonomousOpMode {
 
         drive(4.5, 0.3, 3);
 
+
         cameraLook();
         int goldPos = bestGoldGuess();
         if(goldPos == 0) { // left
-            drive(-1.5, 0.3, 3);
-            encTurn(4, -4, 0.7, 5);
-            drive(9 , 0.5, 3);
-            drive(-4, 0.5, 3);
-            encTurn(4, -4, 0.7, 5);
-            drive(12, 0.5, 3);
-            encTurn(4, -4, 0.5, 3);
-            drive(20, 0.5, 4);
-            encTurn(12, -12, 0.5, 4);
-            drive(3,0.5, 4);
 
-        } else if(goldPos == 1) {
-            drive(3, 0.3, 3);
-        } else if(goldPos == 2) {
-            drive(-1.5, 0.3, 3);
-            encTurn(-4, 4, 0.7, 5);
-            drive(9, 0.5, 3);
+            drive(-1.5, 0.4, 3);
+            sleep(250);
+            turnUntilHeading(45, 0.6, 1, 3);
+            sleep(250);
+            drive(8 , 0.4, 3);
+            sleep(250);
+            drive(-8, 0.4, 3);
+            turnUntilHeading(75, 0.6, 1, 3);
+            /*
+            sleep(250);
+            drive(14, 0.5, 3);
+            sleep(250);*/
 
+        } else if(goldPos == 1) { // center
+
+            drive(3.5, 0.4, 3);
+            drive(-4.75, 0.4, 3);
+            turnUntilHeading(75, 0.6, 1, 3);
+            //drive(13.25, 0.5, 3);
+
+        } else if(goldPos == 2) { // right
+
+            drive(-1.5, 0.4, 3);
+            sleep(250);
+            turnUntilHeading(-45, 0.6, 1, 3);
+            sleep(250);
+            drive(7.5, 0.4, 3);
+            sleep(250);
+            drive(-7.5, 0.4, 3);
+            turnUntilHeading(75, 0.6, 1, 3);
+            //drive(13.0, 0.5, 3);
         }
+
+        /*turnUntilHeading(138, 0.6, 1, 3);
+        sleep(250);
+        drive(18, 0.5, 4);
+        sleep(250);
+        driveTimeout(0.5, 1);
+        sleep(250);
+        drive(-2.5, 0.3, 2);
+        sleep(250);
+        turnUntilHeading(275, 0.6, 1, 4);
+        sleep(250);
+        drive(4.5,0.5, 4);*/
     }
 
     public int bestGoldGuess() {
