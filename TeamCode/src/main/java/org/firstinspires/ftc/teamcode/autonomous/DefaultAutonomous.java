@@ -9,53 +9,69 @@ public class DefaultAutonomous extends AutonomousOpMode {
 
     public void startOpMode() {
 
-        /*r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
-        r.setLiftPwr(-0.5);
+        /*
+        r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
+        r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
+        r.setLiftPwr(-.25);
         sleep(100);
-        r.setLiftPwr(0.5);
+        r.setLiftPwr(0.25);
         sleep(1000);
         r.setLiftPwr(0);
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
-        driveTimeout(0.25, 4);
-        //turnUntilHeading(1, 0.5, 1, 3);
-        r.FILTER.setPosition(.65); //  other one is .95*/
-
+        */
+        setCameraPosition(CameraPosition.LEFT);
         drive(4.5, 0.3, 3);
-
-
         cameraLook();
         int goldPos = bestGoldGuess();
         if(goldPos == 0) { // left
 
             drive(-1.5, 0.4, 3);
-            sleep(250);
-            turnUntilHeading(45, 0.6, 1, 3);
-            sleep(250);
+            sleep(500);
+            turnUntilHeading(42, 0.6, 1, 3);
+            sleep(500);
             drive(8 , 0.4, 3);
-            sleep(250);
+            sleep(500);
             drive(-8, 0.4, 3);
+            sleep(500);
             turnUntilHeading(75, 0.6, 1, 3);
-            /*
+            sleep(500);
+            drive(17.5, 0.5, 3);
+            sleep(500);
+            turnUntilHeading(132, 0.8, 1, 3);
+            sleep(500);
+            drive(18, 0.5, 3);
+            sleep(500);
+            turnUntilHeading(222, 0.8, 1, 3);
             sleep(250);
-            drive(14, 0.5, 3);
-            sleep(250);*/
+            drive(11, 0.5, 3);
+            sleep(250);
+            drive(-12, 0.5, 3);
+            sleep(250);
+            turnUntilHeading(314, 0.8, 1, 3);
+            sleep(250);
+            drive(26, 1, 3);
+            drive(6, 0.5, 3);
+            driveTimeout(0.4, 3);
 
         } else if(goldPos == 1) { // center
 
             drive(3.5, 0.4, 3);
+            sleep(500);
             drive(-4.75, 0.4, 3);
+            sleep(500);
             turnUntilHeading(75, 0.6, 1, 3);
             //drive(13.25, 0.5, 3);
 
         } else if(goldPos == 2) { // right
 
             drive(-1.5, 0.4, 3);
-            sleep(250);
+            sleep(500);
             turnUntilHeading(-45, 0.6, 1, 3);
-            sleep(250);
+            sleep(500);
             drive(7.5, 0.4, 3);
-            sleep(250);
+            sleep(500);
             drive(-7.5, 0.4, 3);
+            sleep(500);
             turnUntilHeading(75, 0.6, 1, 3);
             //drive(13.0, 0.5, 3);
         }

@@ -419,16 +419,15 @@ public abstract class AutonomousOpMode extends LinearOpMode {
 
     public void cameraLook() {
 
-        setCameraPosition(CameraPosition.LEFT);
-        sleep(1500);
+        sleep(500);
         setCounts(0);
         sleep(250);
         setCameraPosition(CameraPosition.CENTER);
-        sleep(1500);
+        sleep(500);
         setCounts(1);
         sleep(250);
         setCameraPosition(CameraPosition.RIGHT);
-        sleep(1500);
+        sleep(500);
         setCounts(2);
         sleep(250);
         setCameraPosition(CameraPosition.DOWN);
@@ -441,7 +440,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
 
         }
         telemetry.update();
-        sleep(2000);
+        //sleep(1000);
 
     }
 
