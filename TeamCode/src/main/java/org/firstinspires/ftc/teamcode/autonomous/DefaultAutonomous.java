@@ -9,20 +9,21 @@ public class DefaultAutonomous extends AutonomousOpMode {
 
     public void startOpMode() {
 
-        /*
+
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
         r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
         r.setLiftPwr(-.25);
         sleep(100);
-        r.setLiftPwr(0.25);
+        r.setLiftPwr(0.5);
         sleep(1000);
         r.setLiftPwr(0);
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
-        */
+
         setCameraPosition(CameraPosition.LEFT);
         drive(4.5, 0.3, 3);
         cameraLook();
         int goldPos = bestGoldGuess();
+        setCameraPosition(CameraPosition.DOWN);
         if(goldPos == 0) { // left
 
             drive(-1.5, 0.4, 3);
@@ -59,7 +60,27 @@ public class DefaultAutonomous extends AutonomousOpMode {
             sleep(500);
             drive(-4.75, 0.4, 3);
             sleep(500);
+
+            // normal position
             turnUntilHeading(75, 0.6, 1, 3);
+            sleep(500);
+            drive(17, 0.5, 3);
+            sleep(500);
+            turnUntilHeading(132, 0.8, 1, 3);
+            sleep(500);
+            drive(14, 0.5, 3);
+            sleep(500);
+            turnUntilHeading(222, 0.8, 1, 3);
+            sleep(250);
+            drive(7, 0.5, 3);
+            sleep(250);
+            drive(-8, 0.5, 3);
+            sleep(250);
+            turnUntilHeading(314, 0.8, 1, 3);
+            sleep(250);
+            drive(22, 1, 3);
+            drive(6, 0.5, 3);
+            driveTimeout(0.4, 3);
             //drive(13.25, 0.5, 3);
 
         } else if(goldPos == 2) { // right
@@ -76,17 +97,8 @@ public class DefaultAutonomous extends AutonomousOpMode {
             //drive(13.0, 0.5, 3);
         }
 
-        /*turnUntilHeading(138, 0.6, 1, 3);
-        sleep(250);
-        drive(18, 0.5, 4);
-        sleep(250);
-        driveTimeout(0.5, 1);
-        sleep(250);
-        drive(-2.5, 0.3, 2);
-        sleep(250);
-        turnUntilHeading(275, 0.6, 1, 4);
-        sleep(250);
-        drive(4.5,0.5, 4);*/
+
+
     }
 
     public int bestGoldGuess() {

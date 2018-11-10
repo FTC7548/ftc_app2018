@@ -11,11 +11,11 @@ public class ServoTest extends AutonomousOpMode {
 
     public void startOpMode() {
 
-        Servo servo1 = r.PHONE_PITCH;
-        Servo servo2 = r.PHONE_YAW;
+        Servo servo1 = r.PIVOT_L;
+        Servo servo2 = r.PIVOT_R;
 
         servo1.setPosition(1);
-        servo2.setPosition(0.5);
+        servo2.setPosition(0);
 
         while (opModeIsActive()) {
 

@@ -15,6 +15,29 @@ import org.firstinspires.ftc.teamcode.util.ToggleServo;
  */
 public class TeleOP extends OpMode {
 
+
+    /*
+    CONTROLS
+
+    ## Gamepad 1:
+    dpad up/down: extendo
+    left bumper: toggle filter bar
+    right bumper/trigger: intake
+    y: toggle bucket
+
+
+
+
+    ## Gamepad 2:
+    Joysticks: Drive
+    Right Bumper: Half speed Drive
+    Left Bumper/Trigger: Lift
+    a: release ratchet while hanging
+    x: manual ratchet lock
+
+
+     */
+
     /**
      * Instance of the robot class for all of the hardware
      */
@@ -188,48 +211,6 @@ public class TeleOP extends OpMode {
     }
 
 
-
-    /*
-    public void lift() {
-        double lift_pwr = 1;
-        if (gamepad2.right_bumper)
-            lift_pwr *= 0.5;
-
-        if(gamepad2.left_bumper && !prevent_down_toggled) { // move up
-            cycle_count_for_release = 0;
-            if (down_prevent) {
-                new Thread(new UnlockDelay()).start();
-            } else {
-                r.setLiftPwr(lift_pwr);
-            }
-
-        } else if (gamepad2.left_trigger > 0.5 && !prevent_up_toggled) { // move down
-            up_released = false;
-
-            r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
-            r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
-
-            if (cycle_count_for_release < 5) {
-                r.setLiftPwr(-lift_pwr);
-            } else {
-                r.setLiftPwr(lift_pwr);
-                cycle_count_for_release++;
-            }
-
-        } else {
-            cycle_count_for_release = 0;
-            up_released = false;
-            r.setLiftPwr(0);
-            r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
-            r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
-            down_prevent = true;
-        }
-    }
-
-
-
-    */
-
     public void ratchet() {
         /*if (gamepad2.a) {
             if (!x_pressed) {
@@ -296,13 +277,15 @@ public class TeleOP extends OpMode {
 
     public void togglePivot() {
         if (pivot_toggled) {
+            r.DUMP.setPosition(.45);
             r.FILTER.setPosition(.65);
             r.PIVOT_L.setPosition(1);
             r.PIVOT_R.setPosition(0);
         } else {
+            r.DUMP.setPosition(.45);
             r.FILTER.setPosition(.65);
             r.PIVOT_L.setPosition(0.15);
-            r.PIVOT_R.setPosition(.85);
+            r.PIVOT_R.setPosition(0.85);
         }
         pivot_toggled = !pivot_toggled;
     }
@@ -340,9 +323,9 @@ public class TeleOP extends OpMode {
 
     public void toggleFilter() {
         if (filter_toggled) {
-            r.FILTER.setPosition(0.65);
+            r.FILTER.setPosition(0.85);
         } else {
-            r.FILTER.setPosition(0.95);
+            r.FILTER.setPosition(1);
         }
 
         filter_toggled = !filter_toggled;

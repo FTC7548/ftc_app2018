@@ -41,6 +41,8 @@ public abstract class AutonomousOpMode extends LinearOpMode {
 
     public void runOpMode() {
         r = new Robot(hardwareMap);
+        r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
+        r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
 
         pipeline = new ObjDetectPipeline();
 
@@ -425,13 +427,11 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         setCameraPosition(CameraPosition.CENTER);
         sleep(500);
         setCounts(1);
-        sleep(250);
+        sleep(100);
         setCameraPosition(CameraPosition.RIGHT);
         sleep(500);
         setCounts(2);
-        sleep(250);
-        setCameraPosition(CameraPosition.DOWN);
-
+        sleep(100);
 
         telemetry.clear();
         telemetry.clearAll();
