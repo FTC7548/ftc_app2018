@@ -1,15 +1,10 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
-import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
-
 import org.firstinspires.ftc.teamcode.util.Robot;
 
-@Autonomous(name="Default", group="lol")
-public class DefaultAutonomous extends AutonomousOpMode {
+public class MiniAutonomous extends AutonomousOpMode {
 
     public void startOpMode() {
-
-
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
         r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
         r.setLiftPwr(-.25);
@@ -154,10 +149,5 @@ public class DefaultAutonomous extends AutonomousOpMode {
             driveTimeout(0.4, 3);
             //drive(13.0, 0.5, 3);
         }
-
-
-
     }
-
-
 }

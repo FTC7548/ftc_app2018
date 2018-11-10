@@ -450,5 +450,16 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         max_sizes[index] = maxContourSize();
     }
 
+    public int bestGoldGuess() {
+        // counts, avg_sizes, max_sizes
+        // 0 is left
+        int pos = 0;
+        for (int i = 0; i < 3; i++) {
+            if (max_sizes[i][0] > max_sizes[pos][0]) {
+                pos = i;
+            }
+        }
+        return pos;
+    }
 
 }
