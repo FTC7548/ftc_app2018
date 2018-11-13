@@ -263,9 +263,10 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         double yaw = yaw();
         r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         runtime.reset();
+        double initialDist = distance(yaw, heading);
         while (Math.abs(distance(yaw(), heading)) > HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
             yaw = yaw();
-            //pwr = Math.exp(1 / Math.cosh());
+            pwr = Math.pow((1 / Math.cosh(distance(yaw, heading) / initialDist * 1.5)), 2);
             setLPwr(distance(yaw, heading) < 0? -pwr * dir:pwr * dir);
             setRPwr(distance(yaw, heading) > 0? -pwr * dir:pwr * dir);
             telemetry.addData("Turning", distance(yaw, heading) > 0? "Right":"Left");
