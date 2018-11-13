@@ -11,8 +11,8 @@ public class ServoTest extends AutonomousOpMode {
 
     public void startOpMode() {
 
-        Servo servo1 = r.PIVOT_L;
-        Servo servo2 = r.PIVOT_R;
+        Servo servo1 = r.PHONE_YAW;
+        Servo servo2 = r.PHONE_PITCH;
 
         servo1.setPosition(1);
         servo2.setPosition(0);
@@ -43,6 +43,9 @@ public class ServoTest extends AutonomousOpMode {
 
             telemetry.addData("servo pos", "up: %s, down: %s",
                     servo1.getPosition(), servo2.getPosition());
+            telemetry.addData("max contour x/y", "x: %s, y: %s, size: %s", maxContourSizeNoFilter()[1], maxContourSizeNoFilter()[2], maxContourSizeNoFilter()[0]);
+
+            //telemetry.addData("largest x/y pos", );
 
             telemetry.update();
             sleep(250);

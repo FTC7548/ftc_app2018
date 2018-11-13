@@ -24,6 +24,7 @@ public class TeleOP extends OpMode {
     left bumper: toggle filter bar
     right bumper/trigger: intake
     y: toggle bucket
+    b: force filter bar to go in
 
 
 
@@ -61,6 +62,8 @@ public class TeleOP extends OpMode {
     public boolean filter_pressed = false;
     public boolean filter_toggled = false;
 
+    boolean ratchet_lock = false;
+
     public Thread upProcess = new Thread(new Runnable() {
         public void run() {
 
@@ -73,13 +76,21 @@ public class TeleOP extends OpMode {
         }
     });
 
+    public Thread hangProcess = new Thread(new Runnable() {
+        public void run() {
+
+        }
+    });
+
     public void init() {
 
         r = new Robot(hardwareMap);
+
         r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         down_prevent = true;
         upProcess.run();
         downProcess.run();
+        hangProcess.run();
     }
 
     public void start() {
@@ -98,6 +109,10 @@ public class TeleOP extends OpMode {
         telemetry();
         dump();
         filter();
+
+        if (gamepad1.b)  {
+            r.FILTER.setPosition(0.6);
+        }
 
         /*
         if (gamepad1.x)
@@ -171,15 +186,20 @@ public class TeleOP extends OpMode {
     }
 
     public void engageRatchet() {
+
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
         r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
         servoEngaged = true;
     }
 
     public void disengageRatchet() {
-        r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
-        r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
-        servoEngaged = false;
+        if (!ratchet_lock) {
+            r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
+            r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
+            servoEngaged = false;
+        } else {
+            engageRatchet();
+        }
     }
 
     public class UnlockDelay implements Runnable {
@@ -210,6 +230,29 @@ public class TeleOP extends OpMode {
         }
     }
 
+    public void autoHang() {
+        // change false to a gamepad thing when we want to try this
+        if (false && !hangProcess.isAlive()) {
+            hangProcess = new Thread(new AutoHang());
+            hangProcess.start();
+        }
+    }
+
+    public class AutoHang implements Runnable {
+        @Override
+        public void run() {
+            try {
+                r.setLiftPwr(-1);
+                Thread.sleep(500);
+                engageRatchet();
+                Thread.sleep(250);
+                r.setLiftPwr(0);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+    }
 
     public void ratchet() {
         /*if (gamepad2.a) {
@@ -222,20 +265,27 @@ public class TeleOP extends OpMode {
         } */ // un comment this if we need the toggle back
 
         if (gamepad2.x) {
+            //ratchet_lock = true;
             r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
             r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
+        }
+
+        if (gamepad2.y && gamepad2.a) {
+            ratchet_lock = false;
         }
     }
 
     public void toggleRatchet() {
-        if (prevent_down_toggled) {
-            r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
-            r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
-        } else {
-            r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
-            r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
+        if (!ratchet_lock) {
+            if (prevent_down_toggled) {
+                r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
+                r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
+            } else {
+                r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
+                r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
+            }
+            prevent_down_toggled = !prevent_down_toggled;
         }
-        prevent_down_toggled = !prevent_down_toggled;
     }
 
     public void extend() {
@@ -277,17 +327,35 @@ public class TeleOP extends OpMode {
 
     public void togglePivot() {
         if (pivot_toggled) {
-            r.DUMP.setPosition(.45);
-            r.FILTER.setPosition(.65);
-            r.PIVOT_L.setPosition(1);
-            r.PIVOT_R.setPosition(0);
+            new Thread(new PivotFrontDelay()).start();
         } else {
-            r.DUMP.setPosition(.45);
-            r.FILTER.setPosition(.65);
-            r.PIVOT_L.setPosition(0.15);
-            r.PIVOT_R.setPosition(0.85);
+            new Thread(new PivotBackDelay()).start();
         }
         pivot_toggled = !pivot_toggled;
+    }
+
+    public class PivotBackDelay implements Runnable {
+        public void run() {
+            try {
+                r.DUMP.setPosition(.4);
+                r.FILTER.setPosition(.6);
+                Thread.sleep(300);
+                r.PIVOT_L.setPosition(.1);
+                r.PIVOT_R.setPosition(.9);
+            } catch (Exception e) {}
+        }
+    }
+
+    public class PivotFrontDelay implements Runnable {
+        public void run() {
+            try {
+                r.DUMP.setPosition(.4);
+                r.FILTER.setPosition(.6);
+                Thread.sleep(300);
+                r.PIVOT_L.setPosition(1);
+                r.PIVOT_R.setPosition(0);
+            } catch (Exception e) {}
+        }
     }
 
     public void dump() {
@@ -303,7 +371,7 @@ public class TeleOP extends OpMode {
 
     public void toggleDump() {
         if (dump_toggled) {
-            r.DUMP.setPosition(0.53);
+            r.DUMP.setPosition(0.65);
         } else{
             r.DUMP.setPosition(0.22);
         }
@@ -330,8 +398,6 @@ public class TeleOP extends OpMode {
 
         filter_toggled = !filter_toggled;
     }
-
-
 
     public void telemetry() {
 

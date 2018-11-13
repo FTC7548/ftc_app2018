@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.teamcode.R;
+import org.firstinspires.ftc.teamcode.util.PhilSwift;
 import org.firstinspires.ftc.teamcode.util.Robot;
 
 @Autonomous(name="Default", group="lol")
@@ -9,6 +11,11 @@ public class DefaultAutonomous extends AutonomousOpMode {
 
     public void startOpMode() {
 
+
+
+        // .31 and .69 for pivot left and right
+        // .6 for filter bar when we're flipping through
+        // .3 lock .4 release
 
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
         r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
@@ -18,6 +25,10 @@ public class DefaultAutonomous extends AutonomousOpMode {
         sleep(1000);
         r.setLiftPwr(0);
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
+        r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
+
+        // grip onto glyph
+
 
         setCameraPosition(CameraPosition.LEFT);
         drive(4.5, 0.3, 3);
@@ -28,11 +39,11 @@ public class DefaultAutonomous extends AutonomousOpMode {
 
             drive(-1.5, 0.4, 3);
             sleep(500);
-            turnUntilHeading(42, 0.6, 1, 3);
+            turnUntilHeading(45, 0.6, 1, 3);
             sleep(500);
             drive(8 , 0.4, 3);
             sleep(500);
-            drive(-8, 0.4, 3);
+            drive(-7.5, 0.4, 3);
             sleep(500);
 
             // normal position
@@ -42,7 +53,7 @@ public class DefaultAutonomous extends AutonomousOpMode {
             sleep(500);
 
             // turn parallel to wall
-            turnUntilHeading(132, 0.8, 1, 3);
+            turnUntilHeading(128, 0.8, 1, 3);
             sleep(500);
 
             // drive parallel to wall
@@ -50,20 +61,23 @@ public class DefaultAutonomous extends AutonomousOpMode {
             sleep(500);
 
             // turn to face the block
-            turnUntilHeading(42, 0.6, 1, 3);
+            turnUntilHeading(222, 0.8, 1, 3);
             sleep(250);
 
             // yEET it off
             drive(11, 0.5, 3);
             sleep(250);
-            drive(-12, 0.5, 3);
+            drive(-11, 0.5, 3);
             sleep(250);
 
             // go back parallel to wall
-            turnUntilHeading(314, 0.8, 1, 3);
+            turnUntilHeading(316, 0.8, 1, 3);
             sleep(250);
 
-            // park
+            // bomb has been planted
+            plantTheBomb();
+
+            // skrt skrrrt
             drive(26, 1, 3);
             drive(6, 0.5, 3);
             driveTimeout(0.4, 3);
@@ -72,21 +86,21 @@ public class DefaultAutonomous extends AutonomousOpMode {
 
             drive(3.75, 0.4, 3);
             sleep(500);
-            drive(-5, 0.4, 3);
+            drive(-4.5, 0.4, 3);
             sleep(500);
 
             // normal position
             turnUntilHeading(75, 0.6, 1, 3);
             sleep(500);
-            drive(16.50, 0.5, 3);
+            drive(17, 0.5, 3);
             sleep(500);
 
             // align against the wall
-            turnUntilHeading(132, 0.8, 1, 4); // 132 is old heading
+            turnUntilHeading(128, 0.8, 1, 4); // 132 is old heading
             sleep(500);
 
             // drive parallel to the wall
-            drive(13.5, 0.5, 3);
+            drive(14.31, 0.5, 3);
             sleep(500);
 
             // turn to face the block
@@ -94,20 +108,23 @@ public class DefaultAutonomous extends AutonomousOpMode {
             sleep(250);
 
             // hit the block off
-            drive(-6.75, 0.5, 3);
+            drive(-5.5, 0.5, 3);
             sleep(250);
-            drive(6.75, 0.5, 3);
+            drive(6.5, 0.5, 3);
             sleep(250);
 
             // go parallel to the wall again
-            turnUntilHeading(325, 0.6, 1, 4);
+            turnUntilHeading(338, 0.8, 1, 4);
             sleep(250);
 
+            // bomb has been planted
+            plantTheBomb();
+            drive(-2, 0.4, 3);
+
             // park
-            drive(22, 1, 3);
+            drive(24, 1, 3);
             drive(6, 0.5, 3);
             driveTimeout(0.4, 3);
-            //drive(13.25, 0.5, 3);
 
         } else if(goldPos == 2) { // right
 
@@ -115,17 +132,17 @@ public class DefaultAutonomous extends AutonomousOpMode {
             sleep(500);
             turnUntilHeading(-45, 0.6, 1, 3);
             sleep(500);
-            drive(6.5, 0.4, 3);
+            drive(7.3, 0.4, 3);
             sleep(500);
-            drive(-6.5, 0.4, 3);
+            drive(-7.3, 0.4, 3);
             sleep(500);
             turnUntilHeading(75, 0.6, 1, 3);
             sleep(500);
-            drive(17.0, 0.5, 3);
+            drive(17.5, 0.5, 3);
             sleep(500);
 
             // align against the wall
-            turnUntilHeading(132, 0.8, 1, 3);
+            turnUntilHeading(130, 0.8, 1, 3);
             sleep(500);
 
             // go west, young man
@@ -135,24 +152,30 @@ public class DefaultAutonomous extends AutonomousOpMode {
             // this is where the thing will be flipped out.
 
             // turn, baby, turn
-            turnUntilHeading(222,0.8,1,3);
-            sleep(250);
 
             // hit the block off
-            drive(5, 0.5, 3);
+            /*drive(-5, 0.5, 3);
             sleep(250);
-            drive(-6, 0.5, 3);
-            sleep(250);
+            drive(6, 0.5, 3);
+            sleep(250); */
 
             // go parallel to the wall again
-            turnUntilHeading(324, 0.6, 1, 3);
+
+            encTurn(-4, 4, 0.8, 1);
+            sleep(250);
+            turnUntilHeading(340, 0.8, 1, 3);
             sleep(250);
 
+            // bomb has been planted
+            plantTheBomb();
+            drive(-6, 0.4, 3);
+
             // park this shizzle, yo
-            drive(17, 1, 3);
+            drive(23, 1, 3);
             drive(6, 0.5, 3);
+            //PhilSwift.start(hardwareMap.appContext, R.raw.philswift);
             driveTimeout(0.4, 3);
-            //drive(13.0, 0.5, 3);
+            //PhilSwift.stop();
         }
 
 

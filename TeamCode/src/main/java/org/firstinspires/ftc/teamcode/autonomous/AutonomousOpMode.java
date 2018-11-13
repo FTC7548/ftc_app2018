@@ -8,6 +8,8 @@ import org.corningrobotics.enderbots.endercv.CameraViewDisplay;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.teamcode.R;
+import org.firstinspires.ftc.teamcode.util.PhilSwift;
 import org.firstinspires.ftc.teamcode.util.Robot;
 import org.firstinspires.ftc.teamcode.vision.ObjDetectPipeline;
 import org.opencv.core.MatOfPoint;
@@ -43,11 +45,11 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         r = new Robot(hardwareMap);
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
         r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
+        r.DUMP.setPosition(0.3);
 
         pipeline = new ObjDetectPipeline();
 
         pipeline.init(hardwareMap.appContext, CameraViewDisplay.getInstance(), 1);
-
 
         waitForStart();
         pipeline.enable();
@@ -250,6 +252,37 @@ public abstract class AutonomousOpMode extends LinearOpMode {
     }
 
     /**
+     * Turns the robot until a certain heading, from the gyro sensor, running L & R motors in opposite directions
+     * @param heading   Heading, in degrees
+     * @param pwr       Motor power
+     * @param dir       Direction, either -1 or 1
+     * @param timeout   Time limit for operation
+     */
+    public void turnUntilHeadingPID(double heading, double pwr, double dir, double timeout) {
+        if (!opModeIsActive()) return;
+        double yaw = yaw();
+        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        runtime.reset();
+        while (Math.abs(distance(yaw(), heading)) > HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
+            yaw = yaw();
+            //pwr = Math.exp(1 / Math.cosh());
+            setLPwr(distance(yaw, heading) < 0? -pwr * dir:pwr * dir);
+            setRPwr(distance(yaw, heading) > 0? -pwr * dir:pwr * dir);
+            telemetry.addData("Turning", distance(yaw, heading) > 0? "Right":"Left");
+            telemetry.addData("Power", pwr);
+            telemetry.addData("", "Heading Target: %s | Actual: %s", heading, yaw);
+            telemetry.addData("", "Distance: %s", distance(yaw,heading));
+            telemetry.update();
+
+            if (this.isStopRequested()) {
+                return;
+            }
+        }
+        resetEnc();
+        setPwr(0);
+    }
+
+    /**
      * Drag the left wheels while turning
      * @param heading   Heading, in degrees
      * @param pwr       Motor power
@@ -270,6 +303,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
             telemetry.addData("", "Distance: %s", distance(yaw, heading));
             telemetry.update();
             yaw = yaw();
+
             if (this.isStopRequested()) {
                 return;
             }
@@ -383,10 +417,40 @@ public abstract class AutonomousOpMode extends LinearOpMode {
                 Rect boundingRect = Imgproc.boundingRect(c);
                 double xi = (boundingRect.x + boundingRect.width) / 2;
                 double yi = (boundingRect.x + boundingRect.width) / 2;
-                if (xi > 130 && xi < 200 && yi > 130 && yi < 200) {
+                if (sensingCenter) {
+                    if (xi > 180 && xi < 250 && yi > 180 && yi < 250) {
+                        max = c.size().area();
+                        x=xi; y=yi;
+                    }
+                } else {
+                    if (xi > 120 && xi < 210 && yi > 120 && yi < 210) {
+                        max = c.size().area();
+                        x=xi; y=yi;
+                    }
+                }
+
+            }
+
+        }
+        double[] pos = {max, x, y};
+        return pos;
+    }
+
+    boolean sensingCenter = false;
+
+    public double[] maxContourSizeNoFilter() {
+        double max = 0;
+        double x = 0, y = 0;
+
+        for (MatOfPoint c : pipeline.getContours()) {
+            if (c.size().area() > max) {
+                Rect boundingRect = Imgproc.boundingRect(c);
+                double xi = (boundingRect.x + boundingRect.width) / 2;
+                double yi = (boundingRect.x + boundingRect.width) / 2;
+                //if (xi > 120 && xi < 210 && yi > 120 && yi < 210) {
                     max = c.size().area();
                     x=xi; y=yi;
-                }
+                //}
             }
 
         }
@@ -396,9 +460,9 @@ public abstract class AutonomousOpMode extends LinearOpMode {
 
     public enum CameraPosition {
         // pitch, yaw
-        CENTER (0.75, 0.55),
-        LEFT (0.75, 0.25),
-        RIGHT (0.75, 0.8),
+        CENTER (0.75, 0.55), // 224, 223
+        LEFT (0.75, 0.25), // 170, 170
+        RIGHT (0.75, 0.8), // 156, 156
         DOWN (0.85, 0.45);
 
         private final double pitch, yaw;
@@ -416,7 +480,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
     }
 
     double[] counts = new double[3];
-    double[] avg_sizes = new double[3];
+    double[][] avg_sizes = new double[3][3];
     double[][] max_sizes = new double[3][3];
 
     public void cameraLook() {
@@ -424,10 +488,12 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         sleep(1000);
         setCounts(0);
         sleep(350);
+        sensingCenter = true;
         setCameraPosition(CameraPosition.CENTER);
         sleep(500);
         setCounts(1);
         sleep(350);
+        sensingCenter = false;
         setCameraPosition(CameraPosition.RIGHT);
         sleep(500);
         setCounts(2);
@@ -437,6 +503,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         telemetry.clearAll();
         for (int i = 0; i < 3; i++) {
             telemetry.addData("POS" + i, "size: %s (%s, %s)", max_sizes[i][0], max_sizes[i][1], max_sizes[i][2]);
+            telemetry.addData("LOC" + i, "(%s, %s)", avg_sizes[i][1], avg_sizes[i][2]);
 
         }
         telemetry.update();
@@ -446,7 +513,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
 
     public void setCounts(int index) {
         counts[index] = contourCount();
-        avg_sizes[index] = avgContourSize();
+        avg_sizes[index] = maxContourSizeNoFilter();
         max_sizes[index] = maxContourSize();
     }
 
@@ -460,6 +527,16 @@ public abstract class AutonomousOpMode extends LinearOpMode {
             }
         }
         return pos;
+    }
+
+    public void plantTheBomb() {
+        r.DUMP.setPosition(.4);
+        r.FILTER.setPosition(0.6);
+        r.PIVOT_L.setPosition(0.4);
+        r.PIVOT_R.setPosition(0.6);
+        //PhilSwift.start(hardwareMap.appContext, R.raw.yeet);
+        sleep(500);
+        //PhilSwift.stop();
     }
 
 }

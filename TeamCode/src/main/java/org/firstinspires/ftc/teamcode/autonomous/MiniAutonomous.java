@@ -1,7 +1,10 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+
 import org.firstinspires.ftc.teamcode.util.Robot;
 
+@Autonomous(name="Just the basics", group="lol")
 public class MiniAutonomous extends AutonomousOpMode {
 
     public void startOpMode() {
@@ -23,131 +26,22 @@ public class MiniAutonomous extends AutonomousOpMode {
 
             drive(-1.5, 0.4, 3);
             sleep(500);
-            turnUntilHeading(42, 0.6, 1, 3);
+            turnUntilHeading(35, 0.6, 1, 3);
             sleep(500);
-            drive(8 , 0.4, 3);
-            sleep(500);
-            drive(-8, 0.4, 3);
-            sleep(500);
-
-            // normal position
-            turnUntilHeading(75, 0.6, 1, 3);
-            sleep(500);
-            drive(17.5, 0.5, 3);
-            sleep(500);
-
-            // turn parallel to wall
-            turnUntilHeading(132, 0.8, 1, 3);
-            sleep(500);
-
-            // drive parallel to wall
-            drive(18, 0.5, 3);
-            sleep(500);
-
-            // turn to face the block
-            turnUntilHeading(42, 0.6, 1, 3);
-            sleep(250);
-
-            // yEET it off
-            drive(11, 0.5, 3);
-            sleep(250);
-            drive(-12, 0.5, 3);
-            sleep(250);
-
-            // go back parallel to wall
-            turnUntilHeading(314, 0.8, 1, 3);
-            sleep(250);
-
-            // park
-            drive(26, 1, 3);
-            drive(6, 0.5, 3);
             driveTimeout(0.4, 3);
 
         } else if(goldPos == 1) { // center
 
-            drive(3.75, 0.4, 3);
-            sleep(500);
-            drive(-5, 0.4, 3);
-            sleep(500);
-
-            // normal position
-            turnUntilHeading(75, 0.6, 1, 3);
-            sleep(500);
-            drive(16.50, 0.5, 3);
-            sleep(500);
-
-            // align against the wall
-            turnUntilHeading(132, 0.8, 1, 4); // 132 is old heading
-            sleep(500);
-
-            // drive parallel to the wall
-            drive(13.5, 0.5, 3);
-            sleep(500);
-
-            // turn to face the block
-            turnUntilHeading(48, 0.6, 1, 4);
-            sleep(250);
-
-            // hit the block off
-            drive(-6.75, 0.5, 3);
-            sleep(250);
-            drive(6.75, 0.5, 3);
-            sleep(250);
-
-            // go parallel to the wall again
-            turnUntilHeading(325, 0.6, 1, 4);
-            sleep(250);
-
-            // park
-            drive(22, 1, 3);
-            drive(6, 0.5, 3);
             driveTimeout(0.4, 3);
-            //drive(13.25, 0.5, 3);
 
         } else if(goldPos == 2) { // right
 
             drive(-1.5, 0.4, 3);
             sleep(500);
-            turnUntilHeading(-45, 0.6, 1, 3);
+            turnUntilHeading(-35, 0.6, 1, 3);
             sleep(500);
-            drive(6.5, 0.4, 3);
-            sleep(500);
-            drive(-6.5, 0.4, 3);
-            sleep(500);
-            turnUntilHeading(75, 0.6, 1, 3);
-            sleep(500);
-            drive(17.0, 0.5, 3);
-            sleep(500);
-
-            // align against the wall
-            turnUntilHeading(132, 0.8, 1, 3);
-            sleep(500);
-
-            // go west, young man
-            drive(9, 0.5, 3);
-            sleep(500);
-
-            // this is where the thing will be flipped out.
-
-            // turn, baby, turn
-            turnUntilHeading(222,0.8,1,3);
-            sleep(250);
-
-            // hit the block off
-            drive(5, 0.5, 3);
-            sleep(250);
-            drive(-6, 0.5, 3);
-            sleep(250);
-
-            // go parallel to the wall again
-            turnUntilHeading(324, 0.6, 1, 3);
-            sleep(250);
-
-            // park this shizzle, yo
-            drive(17, 1, 3);
-            drive(6, 0.5, 3);
             driveTimeout(0.4, 3);
-            //drive(13.0, 0.5, 3);
+
         }
     }
 }

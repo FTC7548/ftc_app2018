@@ -61,11 +61,14 @@ public class Robot {
      */
     public BNO055IMU IMU;
 
+    public HardwareMap hm;
+
     /**
      * Constructor to initialize all class fields
      * @param hm    Instance of HardwareMap from OpMode
      */
     public Robot(HardwareMap hm) {
+        this.hm = hm;
 
         DRIVE_LF = hm.dcMotor.get("drive_lf");
         DRIVE_RF = hm.dcMotor.get("drive_rf");
@@ -103,6 +106,11 @@ public class Robot {
 
         DUMP = hm.servo.get("dump");
 
+        gyroInit();
+
+    }
+
+    public void gyroInit() {
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit           = BNO055IMU.AngleUnit.DEGREES;
         parameters.accelUnit           = BNO055IMU.AccelUnit.METERS_PERSEC_PERSEC;
@@ -147,9 +155,9 @@ public class Robot {
 
     public enum RatchetPosition {
         PREVUP_UP (1),
-        PREVUP_DOWN (.9),
+        PREVUP_DOWN (.88),
         PREVDOWN_UP (0),
-        PREVDOWN_DOWN (.1);
+        PREVDOWN_DOWN (.12);
 
         public final double position;
 
