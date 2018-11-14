@@ -27,7 +27,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
 
     private final double WHL_DIAM = 4;
     private final int PPR = 1890;
-    private final double HDNG_THRESHOLD = 4;
+    private final double HDNG_THRESHOLD = 2;
     private final double PPI = PPR / (WHL_DIAM * Math.PI);
 
     public Robot r;
@@ -90,6 +90,47 @@ public abstract class AutonomousOpMode extends LinearOpMode {
                 telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LB.getCurrentPosition(),
                         r.DRIVE_RB.getCurrentPosition());
                 telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
+                telemetry.update();
+                if (this.isStopRequested()) {
+                    return;
+                }
+            }
+        }
+        setPwr(0);
+    }
+
+    public void drivePID(double inches, double initialPwr, double timeout) {
+        if (!opModeIsActive()) return;
+        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        int newLeftTicks = r.DRIVE_LB.getCurrentPosition() + (int)(inches * PPI);
+        int newRightTicks = r.DRIVE_RB.getCurrentPosition() + (int)(inches * PPI);
+        int initialRightTicks = r.DRIVE_RB.getCurrentPosition();
+        runtime.reset();
+        if (inches > 0) {
+            while (r.DRIVE_LB.getCurrentPosition() < newLeftTicks && r.DRIVE_RB.getCurrentPosition()
+                    < newRightTicks && runtime.seconds() < timeout) {
+                double pidPwr = Math.pow((1 / Math.cosh((r.DRIVE_RB.getCurrentPosition() - initialRightTicks) * 1.5 / (inches * PPI))), 2);
+                setPwrNoAbs(initialPwr * pidPwr);
+                telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LB.getCurrentPosition(),
+                        r.DRIVE_RB.getCurrentPosition());
+                telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
+                telemetry.addData("Pwr", "%s", initialPwr * pidPwr);
+                telemetry.addData("Progress", "%s", r.DRIVE_LB.getCurrentPosition() - initialRightTicks);
+                telemetry.update();
+                if (this.isStopRequested()) {
+                    return;
+                }
+            }
+        } else {
+            while (r.DRIVE_LB.getCurrentPosition() > newLeftTicks && r.DRIVE_RB.getCurrentPosition()
+                    > newRightTicks && runtime.seconds() < timeout) {
+                double pidPwr = Math.pow((1 / Math.cosh(((r.DRIVE_RB.getCurrentPosition() - initialRightTicks)) * 1.5 / (inches * PPI))), 2);
+                setPwrNoAbs(-initialPwr * pidPwr);
+                telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LB.getCurrentPosition(),
+                        r.DRIVE_RB.getCurrentPosition());
+                telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
+                telemetry.addData("Pwr", "%s", initialPwr * pidPwr);
+                telemetry.addData("Progress", "%s", r.DRIVE_LB.getCurrentPosition() - initialRightTicks);
                 telemetry.update();
                 if (this.isStopRequested()) {
                     return;
@@ -254,11 +295,11 @@ public abstract class AutonomousOpMode extends LinearOpMode {
     /**
      * Turns the robot until a certain heading, from the gyro sensor, running L & R motors in opposite directions
      * @param heading   Heading, in degrees
-     * @param pwr       Motor power
+     * @param startpwr       Motor power
      * @param dir       Direction, either -1 or 1
      * @param timeout   Time limit for operation
      */
-    public void turnUntilHeadingPID(double heading, double pwr, double dir, double timeout) {
+    public void turnUntilHeadingPID(double heading, double startpwr, double dir, double timeout) {
         if (!opModeIsActive()) return;
         double yaw = yaw();
         r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -266,13 +307,13 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         double initialDist = distance(yaw, heading);
         while (Math.abs(distance(yaw(), heading)) > HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
             yaw = yaw();
-            pwr = Math.pow((1 / Math.cosh(distance(yaw, heading) / initialDist * 1.5)), 2);
+            double pwr = startpwr * Math.pow((1 / Math.cosh( (initialDist - distance(yaw, heading)) / initialDist * 1.05)), 1);
             setLPwr(distance(yaw, heading) < 0? -pwr * dir:pwr * dir);
             setRPwr(distance(yaw, heading) > 0? -pwr * dir:pwr * dir);
             telemetry.addData("Turning", distance(yaw, heading) > 0? "Right":"Left");
             telemetry.addData("Power", pwr);
             telemetry.addData("", "Heading Target: %s | Actual: %s", heading, yaw);
-            telemetry.addData("", "Distance: %s", distance(yaw,heading));
+            telemetry.addData("", "Distance: %s : %s", distance(yaw,heading), initialDist);
             telemetry.update();
 
             if (this.isStopRequested()) {

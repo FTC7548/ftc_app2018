@@ -16,7 +16,7 @@ public class DefaultAutonomous extends AutonomousOpMode {
         // .31 and .69 for pivot left and right
         // .6 for filter bar when we're flipping through
         // .3 lock .4 release
-
+        /*
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
         r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
         r.setLiftPwr(-.25);
@@ -26,17 +26,71 @@ public class DefaultAutonomous extends AutonomousOpMode {
         r.setLiftPwr(0);
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
         r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
-
+        */
         // grip onto glyph
 
-
+        /*
         setCameraPosition(CameraPosition.LEFT);
         drive(4.5, 0.3, 3);
         cameraLook();
         int goldPos = bestGoldGuess();
         setCameraPosition(CameraPosition.DOWN);
+        */
+
+        // ACCURACY TEST
+        for (int i = 0; i < 1; i++) {
+            drivePID(-10, .6, 3);
+            sleep(500);
+            drivePID(10, .6, 3);
+            sleep(500);
+        }
+
+        drivePID(-5, .6, 3);
+        sleep(500);
+        turnUntilHeadingPID(90, 0.8, 1, 5);
+        sleep(1000);
+        turnUntilHeadingPID(0, 0.8, 1, 5);
+        /*
+        turnUntilHeadingPID(90, .8, 1, 5);
+        sleep(1000);
+        turnUntilHeadingPID(0, .8, 1, 5);
+        */
+        PhilSwift.start(hardwareMap.appContext, R.raw.philswift);
+        sleep(2000);
+        PhilSwift.stop();
+        drivePID(5, .6, 3);
+        /*
+        drivePID(-10, 0.6, 3);
+        sleep(500);
+        drivePID(10, 0.6, 3);
+        sleep(500);
+        drivePID(-10, 0.6, 3);
+        sleep(500);
+        drivePID(10, 0.6, 3);
+        sleep(500);
+        drivePID(-10, 0.6, 3);
+        sleep(500);
+        drivePID(10, 0.6, 3);
+        sleep(500);
+        */
+        int goldPos = 0;
         if(goldPos == 0) { // left
 
+            // NEW WIP
+            /*
+            drivePID(-1.5, 0.4, 3);
+            sleep(500);
+            turnUntilHeadingPID(45, 0.6, 1, 3);
+            sleep(500);
+            drivePID(8 , 0.4, 3);
+            sleep(500);
+            drivePID(-7.5, 0.4, 3);
+            sleep(500);
+            turnUntilHeading(75, 0.6, 1, 3);
+            */
+
+
+            /*
             drive(-1.5, 0.4, 3);
             sleep(500);
             turnUntilHeading(45, 0.6, 1, 3);
@@ -81,6 +135,7 @@ public class DefaultAutonomous extends AutonomousOpMode {
             drive(26, 1, 3);
             drive(6, 0.5, 3);
             driveTimeout(0.4, 3);
+            */
 
         } else if(goldPos == 1) { // center
 
