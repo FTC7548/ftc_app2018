@@ -44,21 +44,24 @@ public class DefaultAutonomous extends AutonomousOpMode {
             drivePID(10, .6, 3);
             sleep(500);
         }
-
+        /*
         drivePID(-5, .6, 3);
         sleep(500);
         turnUntilHeadingPID(90, 0.8, 1, 5);
         sleep(1000);
         turnUntilHeadingPID(0, 0.8, 1, 5);
+        */
         /*
         turnUntilHeadingPID(90, .8, 1, 5);
         sleep(1000);
         turnUntilHeadingPID(0, .8, 1, 5);
         */
+        /*
         PhilSwift.start(hardwareMap.appContext, R.raw.philswift);
         sleep(2000);
         PhilSwift.stop();
         drivePID(5, .6, 3);
+        */
         /*
         drivePID(-10, 0.6, 3);
         sleep(500);
