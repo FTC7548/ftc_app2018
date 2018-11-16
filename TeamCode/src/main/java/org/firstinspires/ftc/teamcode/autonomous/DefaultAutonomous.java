@@ -38,19 +38,19 @@ public class DefaultAutonomous extends AutonomousOpMode {
         */
 
         // ACCURACY TEST
-        for (int i = 0; i < 1; i++) {
+        /*for (int i = 0; i < 3; i++) {
             drivePID(-10, .6, 3);
             sleep(500);
             drivePID(10, .6, 3);
             sleep(500);
-        }
-        /*
+        } */
+
         drivePID(-5, .6, 3);
         sleep(500);
-        turnUntilHeadingPID(90, 0.8, 1, 5);
+        turnUntilHeadingPID(90, 1, 1, 5);
         sleep(1000);
-        turnUntilHeadingPID(0, 0.8, 1, 5);
-        */
+        turnUntilHeadingPID(0, 1, 1, 5);
+
         /*
         turnUntilHeadingPID(90, .8, 1, 5);
         sleep(1000);
