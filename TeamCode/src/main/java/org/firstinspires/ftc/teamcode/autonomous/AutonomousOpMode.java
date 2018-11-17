@@ -27,7 +27,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
 
     private final double WHL_DIAM = 4;
     private final int PPR = 1890;
-    private final double HDNG_THRESHOLD = 2;
+    private final double HDNG_THRESHOLD = 4;
     private final double PPI = PPR / (WHL_DIAM * Math.PI);
 
     public Robot r;

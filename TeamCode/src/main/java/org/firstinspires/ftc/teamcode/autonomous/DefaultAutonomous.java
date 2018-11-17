@@ -29,27 +29,28 @@ public class DefaultAutonomous extends AutonomousOpMode {
         */
         // grip onto glyph
 
-        /*
         setCameraPosition(CameraPosition.LEFT);
-        drive(4.5, 0.3, 3);
+        drivePID(5, 0.4, 3);
         cameraLook();
         int goldPos = bestGoldGuess();
         setCameraPosition(CameraPosition.DOWN);
-        */
 
         // ACCURACY TEST
-        /*for (int i = 0; i < 3; i++) {
+        /*
+        for (int i = 0; i < 3; i++) {
             drivePID(-10, .6, 3);
             sleep(500);
             drivePID(10, .6, 3);
             sleep(500);
-        } */
-
+        }
+        */
+        /*
         drivePID(-5, .6, 3);
         sleep(500);
         turnUntilHeadingPID(90, 1, 1, 5);
         sleep(1000);
         turnUntilHeadingPID(0, 1, 1, 5);
+        */
 
         /*
         turnUntilHeadingPID(90, .8, 1, 5);
@@ -76,22 +77,54 @@ public class DefaultAutonomous extends AutonomousOpMode {
         drivePID(10, 0.6, 3);
         sleep(500);
         */
-        int goldPos = 0;
+        //int goldPos = 0;
         if(goldPos == 0) { // left
 
             // NEW WIP
-            /*
             drivePID(-1.5, 0.4, 3);
-            sleep(500);
-            turnUntilHeadingPID(45, 0.6, 1, 3);
-            sleep(500);
-            drivePID(8 , 0.4, 3);
-            sleep(500);
-            drivePID(-7.5, 0.4, 3);
-            sleep(500);
-            turnUntilHeading(75, 0.6, 1, 3);
-            */
+            sleep(300);
+            turnUntilHeading(44, 0.6, 1, 3);
+            sleep(300);
+            drivePID(8 , 0.6, 3);
+            sleep(300);
+            drivePID(-8, 0.6, 3);
+            sleep(300);
 
+            // normal position
+            turnUntilHeading(75, 0.6, 1, 3);
+            sleep(300);
+            drivePID(17.75, 0.6, 3);
+            sleep(300);
+
+            // turn parallel to wall
+            turnUntilHeading(135, 0.6, 1, 3);
+            sleep(300);
+
+            // drive parallel to wall
+            drivePID(16.75, 0.6, 3);
+            sleep(300);
+
+            // turn to face the block
+            turnUntilHeading(52, 0.6, 1, 3);
+            sleep(300);
+
+            // yEET it off
+            drivePID(-11, 0.6, 3);
+            sleep(300);
+            drivePID(11, 0.6, 3);
+            sleep(300);
+
+            // go back parallel to wall
+            turnUntilHeading(-40, 0.6, 1, 3);
+            sleep(300);
+
+            // bomb has been planted
+            plantTheBomb();
+
+            // skrt skrrrt
+            drive(26, 1, 3);
+            drive(6, 0.5, 3);
+            driveTimeout(0.4, 3);
 
             /*
             drive(-1.5, 0.4, 3);
