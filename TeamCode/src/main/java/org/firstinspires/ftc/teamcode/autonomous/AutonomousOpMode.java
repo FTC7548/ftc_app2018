@@ -109,7 +109,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         if (inches > 0) {
             while (r.DRIVE_LB.getCurrentPosition() < newLeftTicks && r.DRIVE_RB.getCurrentPosition()
                     < newRightTicks && runtime.seconds() < timeout) {
-                double pidPwr = drivePIDPwr((r.DRIVE_RB.getCurrentPosition() - initialRightTicks) / (inches * PPI), 3, 0.1);
+                double pidPwr = drivePIDPwr((r.DRIVE_RB.getCurrentPosition() - initialRightTicks) / (inches * PPI), 5, 0.1);
 
                 //double pidPwr = Math.pow((1 / Math.cosh((r.DRIVE_RB.getCurrentPosition() - initialRightTicks - (0.5 * inches * PPI)) * 2 / (inches * PPI))), 2);
                 setPwrNoAbs(initialPwr * pidPwr);
@@ -126,7 +126,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         } else {
             while (r.DRIVE_LB.getCurrentPosition() > newLeftTicks && r.DRIVE_RB.getCurrentPosition()
                     > newRightTicks && runtime.seconds() < timeout) {
-                double pidPwr = drivePIDPwr((r.DRIVE_RB.getCurrentPosition() - initialRightTicks) / (inches * PPI), 3, 0.1);
+                double pidPwr = drivePIDPwr((r.DRIVE_RB.getCurrentPosition() - initialRightTicks) / (inches * PPI), 5, 0.1);
                 //double pidPwr = Math.pow((1 / Math.cosh(((r.DRIVE_RB.getCurrentPosition() - initialRightTicks - (0.5 * inches * PPI))) * 2 / (inches * PPI))), 2);
                 setPwrNoAbs(-initialPwr * pidPwr);
                 telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LB.getCurrentPosition(),
@@ -145,7 +145,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
 
     public double drivePIDPwr(double ratio, double a, double b) {
         double k = (ratio * a) + b;
-        return sech2(k / 2) * Math.tanh(3 * k);
+        return sech2(k / 2) * Math.tanh(4 * k);
 
     }
 
@@ -293,7 +293,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         double initialDist = distance(yaw, heading);
         while (Math.abs(distance(yaw(), heading)) > HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
             yaw = yaw();
-            double pwr = drivePIDPwr((initialDist - distance(yaw, heading)) / initialDist, 1.3, .3);
+            double pwr = drivePIDPwr((initialDist - distance(yaw, heading)) / initialDist, 1.5, .3);
             setLPwr(distance(yaw, heading) < 0? -pwr * dir:pwr * dir);
             setRPwr(distance(yaw, heading) > 0? -pwr * dir:pwr * dir);
             telemetry.addData("Turning", distance(yaw, heading) > 0? "Right":"Left");

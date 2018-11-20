@@ -171,7 +171,7 @@ public class TeleOP extends OpMode {
                 if (gamepad2.right_bumper) {
                     r.setLiftPwr(-1);
                 } else {
-                    r.setLiftPwr(-0.25);
+                    r.setLiftPwr(-0.5);
                 }
             }
 

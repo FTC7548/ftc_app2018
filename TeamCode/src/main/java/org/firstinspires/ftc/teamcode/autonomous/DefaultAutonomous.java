@@ -79,7 +79,6 @@ public class DefaultAutonomous extends AutonomousOpMode {
         */
         //int goldPos = 0;
         if(goldPos == 0) { // left
-
             // NEW WIP
             drivePID(-1.5, 0.4, 3);
             sleep(300);
@@ -93,15 +92,15 @@ public class DefaultAutonomous extends AutonomousOpMode {
             // normal position
             turnUntilHeading(75, 0.6, 1, 3);
             sleep(300);
-            drivePID(17.75, 0.6, 3);
+            drivePID(20, 0.6, 3);
             sleep(300);
 
             // turn parallel to wall
-            turnUntilHeading(135, 0.6, 1, 3);
+            turnUntilHeading(133, 0.6, 1, 3);
             sleep(300);
 
             // drive parallel to wall
-            drivePID(16.75, 0.6, 3);
+            drivePID(17, 0.6, 3);
             sleep(300);
 
             // turn to face the block
@@ -111,11 +110,11 @@ public class DefaultAutonomous extends AutonomousOpMode {
             // yEET it off
             drivePID(-11, 0.6, 3);
             sleep(300);
-            drivePID(11, 0.6, 3);
+            drivePID(11.5, 0.6, 3);
             sleep(300);
 
             // go back parallel to wall
-            turnUntilHeading(-40, 0.6, 1, 3);
+            turnUntilHeading(-39, 0.6, 1, 3);
             sleep(300);
 
             // bomb has been planted
