@@ -7,10 +7,10 @@ import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 public class DriveTest extends AutonomousOpMode {
     public void startOpMode() {
         for (int i = 0; i < 3; i++) {
-            drivePID(-10, .8, 7);
-            sleep(500);
-            drivePID(10, .8, 7);
-            sleep(500);
+            turnUntilHeadingPID(90, 0.6, 1, 5);
+            sleep(1000);
+            turnUntilHeadingPID(0, 0.6, 1, 3);
+            sleep(1000);
         }
     }
 }
