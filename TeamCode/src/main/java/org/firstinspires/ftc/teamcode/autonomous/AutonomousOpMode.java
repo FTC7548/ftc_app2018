@@ -45,7 +45,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         r = new Robot(hardwareMap);
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
         r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
-        r.DUMP.setPosition(0.3);
+        r.DUMP.setPosition(0.2);
 
         pipeline = new ObjDetectPipeline();
 
@@ -518,23 +518,23 @@ public abstract class AutonomousOpMode extends LinearOpMode {
 
     }
 
-    double[] counts = new double[3];
-    double[][] avg_sizes = new double[3][3];
-    double[][] max_sizes = new double[3][3];
+    double[] counts = {0, 0, 0};
+    double[][] avg_sizes = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
+    double[][] max_sizes = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
 
     public void cameraLook() {
 
-        sleep(500);
+        sleep(600);
         setCounts(0);
         sleep(350);
         sensingCenter = true;
         setCameraPosition(CameraPosition.CENTER);
-        sleep(400);
+        sleep(600);
         setCounts(1);
         sleep(350);
         sensingCenter = false;
         setCameraPosition(CameraPosition.RIGHT);
-        sleep(400);
+        sleep(600);
         setCounts(2);
         sleep(350);
 
@@ -551,9 +551,14 @@ public abstract class AutonomousOpMode extends LinearOpMode {
     }
 
     public void setCounts(int index) {
-        counts[index] = contourCount();
-        avg_sizes[index] = maxContourSizeNoFilter();
-        max_sizes[index] = maxContourSize();
+        for (int i = 0; i < 6; i++) {
+            if (max_sizes[index][0] < maxContourSize()[0]) {
+                counts[index] = contourCount();
+                avg_sizes[index] = maxContourSizeNoFilter();
+                max_sizes[index] = maxContourSize();
+            }
+            sleep(50);
+        }
     }
 
     public int bestGoldGuess() {

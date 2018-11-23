@@ -184,7 +184,7 @@ public class DefaultAutonomous extends AutonomousOpMode {
             sleep(300);
             turnUntilHeading(75, 0.6, 1, 3);
             sleep(300);
-            drivePID(19, 0.6, 3);
+            drivePID(18.5, 0.6, 3);
             sleep(300);
 
             // align against the wall
@@ -207,11 +207,16 @@ public class DefaultAutonomous extends AutonomousOpMode {
 
             // go parallel to the wall again
 
-            encTurn(-4, 4, 0.8, 1);
+            //encTurn(-4, 4, 0.8, 1);
+            sleep(250);
+            turnUntilHeadingPID(60, 0.8, 1, 3);
+            sleep(250);
+            drive(-2, 0.5, 2);
+            sleep(250);
+            drive(2.5, 0.5, 2);
             sleep(250);
             turnUntilHeadingPID(-28, 0.8, 1, 3);
             sleep(250);
-
             // bomb has been planted
             plantTheBomb();
             drivePID(-6, 0.4, 3);

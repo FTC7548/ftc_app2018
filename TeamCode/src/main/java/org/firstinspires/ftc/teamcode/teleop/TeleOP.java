@@ -110,9 +110,7 @@ public class TeleOP extends OpMode {
         dump();
         filter();
 
-        if (gamepad1.b)  {
-            r.FILTER.setPosition(0.6);
-        }
+
 
         /*
         if (gamepad1.x)
@@ -132,7 +130,7 @@ public class TeleOP extends OpMode {
     public void drive() {
         float l_pwr = gamepad2.left_stick_y * Math.abs(gamepad2.left_stick_y);
         float r_pwr = gamepad2.right_stick_y * Math.abs(gamepad2.right_stick_y);
-        if (gamepad2.right_bumper) {
+        if (gamepad2.right_bumper && (l_pwr * r_pwr > 0)) {
             l_pwr *= 0.5;
             r_pwr *= 0.5;
         }
@@ -315,7 +313,7 @@ public class TeleOP extends OpMode {
     }
 
     public void pivot() {
-        if (gamepad2.b) {
+        if (gamepad1.b) {
             if (!b_pressed) {
                 togglePivot();
                 b_pressed = true;

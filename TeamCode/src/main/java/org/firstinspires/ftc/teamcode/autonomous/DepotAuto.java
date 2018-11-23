@@ -31,34 +31,41 @@ public class DepotAuto extends AutonomousOpMode{
 
             drivePID(-1.5, 0.4, 3);
             sleep(300);
-            turnUntilHeading(40, 0.6, 1, 3);
+            turnUntilHeadingPID(40, 0.8, 1, 3);
             sleep(300);
-            drivePID(15, 0.6, 3);
+            drivePID(17, 0.6, 3);
             sleep(300);
-            turnUntilHeading(135, 0.6, 1, 3);
+            turnUntilHeadingPID(135, 0.8, 1, 3);
             sleep(300);
-            drivePID(-12, 0.8, 3);
+            drivePID(-10, 0.8, 3);
             plantTheBomb();
+            drivePID(-4, 0.6, 3);
 
 
 
         } else if (goldPos == 1) {
 
             drivePID(12, 0.6, 3);
+            sleep(250);
+            turnUntilHeadingPID(180, 0.8, 1, 3);
+            sleep(250);
             plantTheBomb();
+            drivePID(-2, 0.6, 3);
 
         } else if (goldPos == 2) {
 
             drivePID(-1.5, 0.4, 3);
             sleep(300);
-            turnUntilHeading(-40, 0.6, 1, 3);
+            turnUntilHeadingPID(-40, 0.8, 1, 3);
             sleep(300);
-            drivePID(15, 0.6, 3);
+            drivePID(17, 0.6, 3);
             sleep(300);
-            turnUntilHeading(225, 0.6, 1, 3);
+            turnUntilHeadingPID(-122, 0.8, 1, 3);
             sleep(300);
             drivePID(-12, 0.8, 3);
             plantTheBomb();
+            drivePID(24, 1, 4);
+            driveTimeout(0.4, 3);
 
 
         }
