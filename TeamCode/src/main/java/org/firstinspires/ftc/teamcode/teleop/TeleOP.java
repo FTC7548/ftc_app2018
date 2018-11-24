@@ -130,7 +130,7 @@ public class TeleOP extends OpMode {
     public void drive() {
         float l_pwr = gamepad2.left_stick_y * Math.abs(gamepad2.left_stick_y);
         float r_pwr = gamepad2.right_stick_y * Math.abs(gamepad2.right_stick_y);
-        if (gamepad2.right_bumper && (l_pwr * r_pwr > 0)) {
+        if (gamepad2.right_bumper) {
             l_pwr *= 0.5;
             r_pwr *= 0.5;
         }
@@ -329,6 +329,8 @@ public class TeleOP extends OpMode {
         } else {
             new Thread(new PivotBackDelay()).start();
         }
+        dump_toggled = true;
+
         pivot_toggled = !pivot_toggled;
     }
 
@@ -336,10 +338,8 @@ public class TeleOP extends OpMode {
         public void run() {
             try {
                 r.DUMP.setPosition(.4);
-                r.FILTER.setPosition(.6);
-                Thread.sleep(300);
-                r.PIVOT_L.setPosition(.1);
-                r.PIVOT_R.setPosition(.9);
+                r.PIVOT_L.setPosition(.05);
+                r.PIVOT_R.setPosition(.95);
             } catch (Exception e) {}
         }
     }
@@ -348,10 +348,10 @@ public class TeleOP extends OpMode {
         public void run() {
             try {
                 r.DUMP.setPosition(.4);
-                r.FILTER.setPosition(.6);
-                Thread.sleep(300);
                 r.PIVOT_L.setPosition(1);
                 r.PIVOT_R.setPosition(0);
+                Thread.sleep(500);
+                r.DUMP.setPosition(.22);
             } catch (Exception e) {}
         }
     }
