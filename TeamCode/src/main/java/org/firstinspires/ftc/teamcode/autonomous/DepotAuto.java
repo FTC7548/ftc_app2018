@@ -35,7 +35,7 @@ public class DepotAuto extends AutonomousOpMode{
             sleep(300);
             drivePID(17, 0.6, 3);
             sleep(300);
-            turnUntilHeadingPID(135, 0.8, 1, 3);
+            turnUntilHeadingPID(Constants.DEPOT_LEFT_TURN, 0.8, 1, 3);
             sleep(300);
             drivePID(-10, 0.8, 3);
             plantTheBomb();

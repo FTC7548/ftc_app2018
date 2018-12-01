@@ -1,8 +1,12 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.sun.tools.javac.code.Attribute;
 
 import org.corningrobotics.enderbots.endercv.CameraViewDisplay;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -25,9 +29,9 @@ import java.util.List;
  */
 public abstract class AutonomousOpMode extends LinearOpMode {
 
+
     private final double WHL_DIAM = 4;
     private final int PPR = 1890;
-    private final double HDNG_THRESHOLD = 3;
     private final double PPI = PPR / (WHL_DIAM * Math.PI);
 
     public Robot r;
@@ -42,6 +46,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
     public abstract void startOpMode();
 
     public void runOpMode() {
+        telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry());
         r = new Robot(hardwareMap);
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
         r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
@@ -100,6 +105,51 @@ public abstract class AutonomousOpMode extends LinearOpMode {
     }
 
     public void drivePID(double inches, double initialPwr, double timeout) {
+        if (!opModeIsActive()) return;
+        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        int newLeftTicks = r.DRIVE_LF.getCurrentPosition() + (int)(inches * PPI);
+        int newRightTicks = r.DRIVE_RB.getCurrentPosition() + (int)(inches * PPI);
+        int initialLeftTicks = r.DRIVE_LF.getCurrentPosition();
+        runtime.reset();
+        if (inches > 0) {
+            while (r.DRIVE_LF.getCurrentPosition() < newLeftTicks && r.DRIVE_RB.getCurrentPosition()
+                    < newRightTicks && runtime.seconds() < timeout) {
+                double pidPwr = drivePIDPwr((r.DRIVE_LF.getCurrentPosition() - initialLeftTicks) / (inches * PPI), Constants.DRIVE_PID_A, Constants.DRIVE_PID_B);
+
+                //double pidPwr = Math.pow((1 / Math.cosh((r.DRIVE_RB.getCurrentPosition() - initialRightTicks - (0.5 * inches * PPI)) * 2 / (inches * PPI))), 2);
+                setPwrNoAbs(initialPwr * pidPwr);
+                telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LF.getCurrentPosition(),
+                        r.DRIVE_RB.getCurrentPosition());
+                telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
+                telemetry.addData("Pwr", "%s", initialPwr * pidPwr);
+                telemetry.addData("Progress", "%s", r.DRIVE_LF.getCurrentPosition() - initialLeftTicks);
+                telemetry.update();
+                if (this.isStopRequested()) {
+                    return;
+                }
+            }
+        } else {
+            while (r.DRIVE_LB.getCurrentPosition() > newLeftTicks && r.DRIVE_RB.getCurrentPosition()
+                    > newRightTicks && runtime.seconds() < timeout) {
+                double pidPwr = drivePIDPwr((r.DRIVE_LF.getCurrentPosition() - initialLeftTicks) / (inches * PPI), 3, 0.1);
+                //double pidPwr = Math.pow((1 / Math.cosh(((r.DRIVE_RB.getCurrentPosition() - initialRightTicks - (0.5 * inches * PPI))) * 2 / (inches * PPI))), 2);
+                setPwrNoAbs(-initialPwr * pidPwr);
+                telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LB.getCurrentPosition(),
+                        r.DRIVE_RB.getCurrentPosition());
+                telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
+                telemetry.addData("Pwr", "%s", initialPwr * pidPwr);
+                telemetry.addData("Progress", "%s", r.DRIVE_LB.getCurrentPosition() - initialLeftTicks);
+                telemetry.update();
+                if (this.isStopRequested()) {
+                    return;
+                }
+            }
+        }
+        setPwr(0);
+        resetEnc();
+    }
+
+    public void drive2(double inches, double initialPwr, double timeout) {
         if (!opModeIsActive()) return;
         r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         int newLeftTicks = r.DRIVE_LF.getCurrentPosition() + (int)(inches * PPI);
@@ -261,7 +311,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         double yaw = yaw();
         r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         runtime.reset();
-        while (Math.abs(distance(yaw(), heading)) > HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
+        while (Math.abs(distance(yaw(), heading)) > Constants.HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
             yaw = yaw();
             setLPwr(distance(yaw, heading) < 0? -pwr * dir:pwr * dir);
             setRPwr(distance(yaw, heading) > 0? -pwr * dir:pwr * dir);
@@ -292,22 +342,22 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         runtime.reset();
         double initialDist = distance(yaw, heading);
-        while (Math.abs(distance(yaw(), heading)) > HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
+        while (Math.abs(distance(yaw(), heading)) > Constants.HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
             yaw = yaw();
-            double pwr = startpwr*drivePIDPwr((initialDist - distance(yaw, heading)) / initialDist, 1, .3);
-            if (Math.abs(distance(yaw(), heading)) < HDNG_THRESHOLD) {
+            double pwr = startpwr*drivePIDPwr((initialDist - distance(yaw, heading)) / initialDist, Constants.TURN_PID_A, Constants.TURN_PID_B);
+            if (Math.abs(distance(yaw(), heading)) < Constants.HDNG_THRESHOLD) {
                 break;
             }
             setLPwr(distance(yaw, heading) < 0? -pwr * dir:pwr * dir);
             setRPwr(distance(yaw, heading) > 0? -pwr * dir:pwr * dir);
-            if (Math.abs(distance(yaw(), heading)) < HDNG_THRESHOLD) {
+            if (Math.abs(distance(yaw(), heading)) < Constants.HDNG_THRESHOLD) {
                 break;
             }
             telemetry.addData("Turning", distance(yaw, heading) > 0? "Right":"Left");
             telemetry.addData("Power", pwr);
             telemetry.addData("", "Heading Target: %s | Actual: %s", heading, yaw);
             telemetry.addData("", "Distance: %s : %s", distance(yaw,heading), initialDist);
-            if (Math.abs(distance(yaw(), heading)) < HDNG_THRESHOLD) {
+            if (Math.abs(distance(yaw(), heading)) < Constants.HDNG_THRESHOLD) {
                 break;
             }
             telemetry.update();
@@ -333,7 +383,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         double yaw = yaw();
         r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         runtime.reset();
-        while (Math.abs(distance(yaw, heading)) > HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
+        while (Math.abs(distance(yaw, heading)) > Constants.HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
             setLPwr(distance(yaw, heading) < 0 ? -pwr * dir : pwr * dir);
             //setRPwr(distance(yaw, heading) > 0? -pwr * dir:pwr * dir);
             telemetry.addData("Turning", distance(yaw, heading) > 0 ? "Right" : "Left");
@@ -363,7 +413,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         double yaw = yaw();
         r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         runtime.reset();
-        while (Math.abs(distance(yaw, heading)) > HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
+        while (Math.abs(distance(yaw, heading)) > Constants.HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
             //setLPwr(distance(yaw, heading) < 0? -pwr * dir:pwr * dir);
             setRPwr(distance(yaw, heading) > 0? -pwr * dir:pwr * dir);
             telemetry.addData("Turning", distance(yaw, heading) > 0? "Right":"Left");
@@ -582,7 +632,5 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         sleep(500);
         //PhilSwift.stop();
     }
-
-
-
 }
+
