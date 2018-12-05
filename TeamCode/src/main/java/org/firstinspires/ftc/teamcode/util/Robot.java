@@ -2,8 +2,10 @@ package org.firstinspires.ftc.teamcode.util;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
+import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.CRServo;
 
@@ -56,6 +58,9 @@ public class Robot {
                             FILTER,
                             DUMP;
 
+    public IntegratingGyroscope gyro;
+    public NavxMicroNavigationSensor navxMicro;
+
     /**
      * Internal gyro in the REV module
      */
@@ -105,6 +110,16 @@ public class Robot {
         FILTER = hm.servo.get("filter");
 
         DUMP = hm.servo.get("dump");
+
+        navxMicro = hm.get(NavxMicroNavigationSensor.class, "navx");
+        gyro = (IntegratingGyroscope)navxMicro;
+        try {
+            while (navxMicro.isCalibrating())  {
+                Thread.sleep(50);
+            }
+        } catch (InterruptedException e) {}
+
+
 
         gyroInit();
 

@@ -463,7 +463,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
      * @return Get yaw from IMU
      */
     public double yaw() {
-        return r.IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
+        return r.gyro.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
     }
 
     /**
