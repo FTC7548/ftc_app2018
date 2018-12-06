@@ -111,13 +111,8 @@ public class Robot {
 
         DUMP = hm.servo.get("dump");
 
-        navxMicro = hm.get(NavxMicroNavigationSensor.class, "navx");
-        gyro = (IntegratingGyroscope)navxMicro;
-        try {
-            while (navxMicro.isCalibrating())  {
-                Thread.sleep(50);
-            }
-        } catch (InterruptedException e) {}
+        //navxMicro = hm.get(NavxMicroNavigationSensor.class, "navx");
+        //gyro = (IntegratingGyroscope)navxMicro;
 
 
 
