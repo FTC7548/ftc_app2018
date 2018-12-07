@@ -9,7 +9,7 @@ public class DepotAuto extends AutonomousOpMode{
 
     @Override
     public void startOpMode() {
-
+        /*
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
         r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
         r.setLiftPwr(-.25);
@@ -19,6 +19,7 @@ public class DepotAuto extends AutonomousOpMode{
         r.setLiftPwr(0);
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
         r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
+        */
 
 
         setCameraPosition(CameraPosition.LEFT);

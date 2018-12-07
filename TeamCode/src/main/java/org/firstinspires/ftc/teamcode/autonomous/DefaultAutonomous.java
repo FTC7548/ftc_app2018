@@ -16,7 +16,7 @@ public class DefaultAutonomous extends AutonomousOpMode {
         // .31 and .69 for pivot left and right
         // .6 for filter bar when we're flipping through
         // .3 lock .4 release
-
+        /*
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
         r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
         r.setLiftPwr(-.25);
@@ -26,7 +26,7 @@ public class DefaultAutonomous extends AutonomousOpMode {
         r.setLiftPwr(0);
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
         r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
-
+        */
         // grip onto glyph
 
         setCameraPosition(CameraPosition.LEFT);
@@ -114,7 +114,7 @@ public class DefaultAutonomous extends AutonomousOpMode {
             sleep(300);
 
             // go back parallel to wall
-            turnUntilHeadingPID(-35, 0.8, 1, 3);
+            turnUntilHeadingPID(-32, 0.8, 1, 3);
             sleep(300);
 
             // bomb has been planted
@@ -154,13 +154,13 @@ public class DefaultAutonomous extends AutonomousOpMode {
             sleep(250);
 
             // hit the block off
-            drivePID(-5.5, 0.6, 3);
+            drivePID(-6.5, 0.6, 3);
             sleep(250);
-            drivePID(7, 0.6, 3);
+            drivePID(8, 0.6, 3);
             sleep(250);
 
             // go parallel to the wall again
-            turnUntilHeadingPID(-31, 0.8, 1, 3);
+            turnUntilHeadingPID(-26, 0.8, 1, 3);
             sleep(250);
 
             // bomb has been planted
@@ -215,7 +215,7 @@ public class DefaultAutonomous extends AutonomousOpMode {
             sleep(250);
             drive(2.5, 0.5, 2);
             sleep(250);
-            turnUntilHeadingPID(-28, 0.8, 1, 3);
+            turnUntilHeadingPID(-25, 0.8, 1, 3);
             sleep(250);
             // bomb has been planted
             plantTheBomb();
