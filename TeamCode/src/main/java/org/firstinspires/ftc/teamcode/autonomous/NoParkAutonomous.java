@@ -2,17 +2,13 @@ package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.R;
-import org.firstinspires.ftc.teamcode.util.PhilSwift;
 import org.firstinspires.ftc.teamcode.util.Robot;
 
-@Autonomous(name="Default", group="lol")
-public class DefaultAutonomous extends AutonomousOpMode {
+@Autonomous(name = "Two-Sample \"No Park\"")
+public class NoParkAutonomous extends AutonomousOpMode {
 
+    @Override
     public void startOpMode() {
-
-
-
         // .31 and .69 for pivot left and right
         // .6 for filter bar when we're flipping through
         // .3 lock .4 release
@@ -121,9 +117,9 @@ public class DefaultAutonomous extends AutonomousOpMode {
             plantTheBomb();
 
             // skrt skrrrt
-            drive(26, 1, 3);
-            drive(6, 0.5, 3);
-            driveTimeout(0.4, 3);
+            drive(3, 1, 3);
+            //drive(6, 0.5, 3);
+            //driveTimeout(0.4, 3);
 
 
         } else if(goldPos == 1) { // center
@@ -168,9 +164,10 @@ public class DefaultAutonomous extends AutonomousOpMode {
             drivePID(-2, 0.4, 3);
 
             // park
-            drive(24, 1, 3);
-            drive(6, 0.5, 3);
-            driveTimeout(0.4, 3);
+
+            drive(3, 1, 3);
+            /*drive(6, 0.5, 3);
+            driveTimeout(0.4, 3); */
 
         } else if(goldPos == 2) { // right
 
@@ -221,17 +218,14 @@ public class DefaultAutonomous extends AutonomousOpMode {
             plantTheBomb();
             drivePID(-6, 0.4, 3);
 
+
             // park this shizzle, yo
-            drive(23, 1, 3);
-            drive(6, 0.5, 3);
+            drive(3, 1, 3);
+            //drive(6, 0.5, 3);
             //PhilSwift.start(hardwareMap.appContext, R.raw.philswift);
-            driveTimeout(0.4, 3);
+            //driveTimeout(0.4, 3);
             //PhilSwift.stop();
         }
 
-
-
     }
-
-
 }

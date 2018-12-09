@@ -9,7 +9,7 @@ public class DepotAuto extends AutonomousOpMode{
 
     @Override
     public void startOpMode() {
-        /*
+
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
         r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
         r.setLiftPwr(-.25);
@@ -19,7 +19,7 @@ public class DepotAuto extends AutonomousOpMode{
         r.setLiftPwr(0);
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
         r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
-        */
+
 
 
         setCameraPosition(CameraPosition.LEFT);
@@ -40,7 +40,7 @@ public class DepotAuto extends AutonomousOpMode{
             sleep(300);
             drivePID(-10, 0.8, 3);
             plantTheBomb();
-            drivePID(-4, 0.6, 3);
+            drivePID(2, 0.6, 3);
 
 
 
@@ -63,10 +63,10 @@ public class DepotAuto extends AutonomousOpMode{
             sleep(300);
             turnUntilHeadingPID(-122, 0.8, 1, 3);
             sleep(300);
-            drivePID(-12, 0.8, 3);
+            drivePID(-11, 0.8, 3);
             plantTheBomb();
-            drivePID(24, 1, 4);
-            driveTimeout(0.4, 3);
+            drivePID(2, 1, 4);
+            //driveTimeout(0.4, 3);
 
 
         }

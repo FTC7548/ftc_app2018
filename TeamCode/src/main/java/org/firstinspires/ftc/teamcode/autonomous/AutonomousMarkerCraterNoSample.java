@@ -2,21 +2,13 @@ package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.R;
-import org.firstinspires.ftc.teamcode.util.PhilSwift;
 import org.firstinspires.ftc.teamcode.util.Robot;
 
-@Autonomous(name="Default", group="lol")
-public class DefaultAutonomous extends AutonomousOpMode {
+@Autonomous(name = "for millilani")
+public class AutonomousMarkerCraterNoSample extends AutonomousOpMode {
 
+    @Override
     public void startOpMode() {
-
-
-
-        // .31 and .69 for pivot left and right
-        // .6 for filter bar when we're flipping through
-        // .3 lock .4 release
-
         r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_UP.position);
         r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_UP.position);
         r.setLiftPwr(-.25);
@@ -78,6 +70,7 @@ public class DefaultAutonomous extends AutonomousOpMode {
         sleep(500);
         */
         //int goldPos = 0;
+        double HEADING = -30;
         if(goldPos == 0) { // left
             // NEW WIP
             drivePID(-1.5, 0.4, 3);
@@ -96,15 +89,16 @@ public class DefaultAutonomous extends AutonomousOpMode {
             sleep(300);
 
             // turn parallel to wall
-            turnUntilHeading(133, 0.6, 1, 3);
+            turnUntilHeadingPID(HEADING, 0.8, 1, 3);
             sleep(300);
 
             // drive parallel to wall
-            drivePID(17, 0.7, 3);
+            drivePID(-14, 0.7, 3);
             sleep(300);
+            drivePID(-2,0.7, 3);
 
             // turn to face the block
-            turnUntilHeadingPID(52, 0.6, 1, 3);
+            /*turnUntilHeadingPID(52, 0.6, 1, 3);
             sleep(300);
 
             // yEET it off
@@ -115,7 +109,7 @@ public class DefaultAutonomous extends AutonomousOpMode {
 
             // go back parallel to wall
             turnUntilHeadingPID(-32, 0.8, 1, 3);
-            sleep(300);
+            sleep(300); */
 
             // bomb has been planted
             plantTheBomb();
@@ -142,15 +136,15 @@ public class DefaultAutonomous extends AutonomousOpMode {
             sleep(500);
 
             // align against the wall
-            turnUntilHeading(128, 0.6, 1, 4); // 132 is old heading
+            turnUntilHeadingPID(HEADING, 0.8, 1, 3);
             sleep(500);
 
             // drive parallel to the wall
-            drivePID(14.31, 0.6, 3);
+            drivePID(-14.31, 0.6, 3);
             sleep(500);
 
             // turn to face the block
-            turnUntilHeadingPID(60, 0.8, 1, 4);
+            /*turnUntilHeadingPID(60, 0.8, 1, 4);
             sleep(250);
 
             // hit the block off
@@ -161,7 +155,7 @@ public class DefaultAutonomous extends AutonomousOpMode {
 
             // go parallel to the wall again
             turnUntilHeadingPID(-26, 0.8, 1, 3);
-            sleep(250);
+            sleep(250); */
 
             // bomb has been planted
             plantTheBomb();
@@ -188,11 +182,11 @@ public class DefaultAutonomous extends AutonomousOpMode {
             sleep(300);
 
             // align against the wall
-            turnUntilHeadingPID(134, 0.6, 1, 4);
+            turnUntilHeadingPID(HEADING, 0.8, 1, 3);
             sleep(300);
 
             // go west, young man
-            drivePID(9, 0.5, 3);
+            drivePID(-9, 0.5, 3);
             sleep(300);
 
             // this is where the thing will be flipped out.
@@ -208,15 +202,7 @@ public class DefaultAutonomous extends AutonomousOpMode {
             // go parallel to the wall again
 
             //encTurn(-4, 4, 0.8, 1);
-            sleep(250);
-            turnUntilHeadingPID(60, 0.8, 1, 3);
-            sleep(250);
-            drive(-2, 0.5, 2);
-            sleep(250);
-            drive(2.5, 0.5, 2);
-            sleep(250);
-            turnUntilHeadingPID(-25, 0.8, 1, 3);
-            sleep(250);
+
             // bomb has been planted
             plantTheBomb();
             drivePID(-6, 0.4, 3);
@@ -228,10 +214,5 @@ public class DefaultAutonomous extends AutonomousOpMode {
             driveTimeout(0.4, 3);
             //PhilSwift.stop();
         }
-
-
-
     }
-
-
 }
