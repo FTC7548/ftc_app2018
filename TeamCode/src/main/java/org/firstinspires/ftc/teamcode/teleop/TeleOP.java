@@ -19,7 +19,6 @@ public class TeleOP extends OpMode {
     }
 
     public void loop() {
-
         r.setDrivePwr(gamepad1.left_stick_y, gamepad1.right_stick_y);
 
         if (gamepad1.dpad_up) {
