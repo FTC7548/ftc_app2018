@@ -52,11 +52,11 @@ public class Extender {
         INTAKE_EXT_R_FORWARD (0),
         INTAKE_EXT_R_BACK (.12),
 
-        GATE_UP (0),
-        GATE_DOWN (0),
+        GATE_UP (.7),
+        GATE_DOWN (.5),
 
-        BASKET_PIVOT_DOWN (0),
-        BASKET_PIVOT_UP (0);
+        BASKET_PIVOT_DOWN (.73),
+        BASKET_PIVOT_UP (.9);
 
         public final double pos;
 
