@@ -30,36 +30,46 @@ public class Robot {
     /**
      * Lift motors
      */
-    public DcMotor      LIFT_LF,
-                        LIFT_LB,
-                        LIFT_RF,
-                        LIFT_RB;
-
+    public DcMotor      LIFT_L,
+                        LIFT_R;
     /**
-     * Controls the positioning of the phone mount for auto
+     * Extension motors
      */
-    public Servo        PHONE_YAW,
-                        PHONE_PITCH;
-
-    /**
-     * Does what it says on the can
-     */
-    public Servo        PREVENT_UP;
-    public Servo        PREVENT_DOWN;
-
-    public CRServo     EXTEND_L,
+    public DcMotor      EXTEND_L,
                         EXTEND_R;
 
-    public CRServo     INTAKE_L,
-                        INTAKE_R;
+    public CRServo      INTAKE_1,
+                        INTAKE_2;
 
-    public Servo       PIVOT_L,
-                            PIVOT_R,
-                            FILTER,
-                            DUMP;
+    /**
+     * Lift Servos
+     */
 
-    public IntegratingGyroscope gyro;
-    public NavxMicroNavigationSensor navxMicro;
+    public Servo        HOOK_L,
+                        HOOK_R,
+                        BASKET_EXT_L,
+                        BASKET_EXT_R,
+                        HOLDER_GATE,
+                        BASKET_PIVOT;
+
+    /**
+     * Extending Servos
+     */
+
+    public Servo        INTAKE_EXT_L,
+                        INTAKE_EXT_R,
+                        INTAKE_GATE,
+                        INTAKE_PIVOT;
+
+    /**
+     * Util Wrapper Classes
+     */
+
+    public Lift         lift;
+    public Extender     extender;
+
+    public IntegratingGyroscope         gyro;
+    public NavxMicroNavigationSensor    navxMicro;
 
     /**
      * Internal gyro in the REV module
@@ -87,29 +97,30 @@ public class Robot {
         DRIVE_RF.setDirection(DcMotor.Direction.REVERSE);
         DRIVE_RB.setDirection(DcMotor.Direction.REVERSE);
 
-        LIFT_LF = hm.dcMotor.get("lift_lf");
-        LIFT_RF = hm.dcMotor.get("lift_rf");
-        LIFT_LB = hm.dcMotor.get("lift_lb");
-        LIFT_RB = hm.dcMotor.get("lift_rb");
+        LIFT_L = hm.dcMotor.get("lift_l");
+        LIFT_R = hm.dcMotor.get("lift_r");
 
-        PHONE_YAW = hm.servo.get("yaw");
-        PHONE_PITCH = hm.servo.get("pitch");
+        HOOK_L = hm.servo.get("hook_l"); // 3
+        HOOK_R = hm.servo.get("hook_r"); // 6
 
-        PREVENT_UP = hm.servo.get("upratchet");
-        PREVENT_DOWN = hm.servo.get("downratchet");
+        BASKET_EXT_L = hm.servo.get("basket_ext_l"); // 2
+        BASKET_EXT_R = hm.servo.get("basket_ext_r"); // 5
+        HOLDER_GATE = hm.servo.get("holder_gate"); // 4
+        BASKET_PIVOT = hm.servo.get("basket_pivot"); // 1
 
-        EXTEND_L = hm.crservo.get("extend_l");
-        EXTEND_R = hm.crservo.get("extend_r");
+        EXTEND_L = hm.dcMotor.get("extend_l");
+        EXTEND_R = hm.dcMotor.get("extend_r");
 
-        INTAKE_L = hm.crservo.get("intake_l");
-        INTAKE_R = hm.crservo.get("intake_r");
+        INTAKE_1 = hm.crservo.get("intake_1"); // 2
+        INTAKE_2 = hm.crservo.get("intake_2"); // 3
 
-        PIVOT_L = hm.servo.get("pivot_l");
-        PIVOT_R = hm.servo.get("pivot_r");
+        INTAKE_EXT_L = hm.servo.get("intake_ext_l"); // 6
+        INTAKE_EXT_R = hm.servo.get("intake_ext_r"); // 1
+        INTAKE_GATE = hm.servo.get("intake_gate"); // 5
+        INTAKE_PIVOT = hm.servo.get("intake_pivot"); // 4
 
-        FILTER = hm.servo.get("filter");
-
-        DUMP = hm.servo.get("dump");
+        lift = new Lift(this);
+        extender = new Extender(this);
 
         //navxMicro = hm.get(NavxMicroNavigationSensor.class, "navx");
         //gyro = (IntegratingGyroscope)navxMicro;
@@ -145,13 +156,6 @@ public class Robot {
         DRIVE_RB.setPower(r_pwr);
     }
 
-    public void setLiftPwr(double pwr) {
-        LIFT_LF.setPower(-pwr);
-        LIFT_LB.setPower(-pwr);
-        LIFT_RF.setPower(pwr);
-        LIFT_RB.setPower(pwr);
-    }
-
     /**
      * Sets the motor mode for the four drive motors
      * @param mode Mode for drive motors
@@ -163,7 +167,8 @@ public class Robot {
         DRIVE_RB.setMode(mode);
     }
 
-    public enum RatchetPosition {
+    /*
+    public enum ServoPosition {
         PREVUP_UP (1),
         PREVUP_DOWN (.88),
         PREVDOWN_UP (0),
@@ -174,6 +179,6 @@ public class Robot {
         RatchetPosition(double position) {
             this.position = position;
         }
-    }
+    } */
 
 }
