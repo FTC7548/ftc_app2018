@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public abstract class ToggleServo {
 
     public boolean alreadyPressed;
-    public boolean state=false;
+    public boolean state = false;
 
     public abstract void toggleTrue();
     public abstract void toggleFalse();

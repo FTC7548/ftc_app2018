@@ -4,14 +4,58 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.util.Robot;
+import org.firstinspires.ftc.teamcode.util.ToggleServo;
 
 @TeleOp(name="TeleOP")
 public class TeleOP extends OpMode {
 
     private Robot r;
+    private ToggleServo     bucketArm,
+                            bucketPivot,
+                            bucketGate,
+                            liftLock;
 
     public void init() {
         r = new Robot(hardwareMap);
+
+
+        bucketArm = new ToggleServo() {
+
+            @Override
+            public void toggleTrue() {
+                r.lift.forward();
+            }
+
+            @Override
+            public void toggleFalse() {
+                r.lift.back();
+            }
+
+            @Override
+            public boolean toggleCondition() {
+                return gamepad1.a;
+            }
+        };
+
+
+        liftLock = new ToggleServo() {
+            @Override
+            public void toggleTrue() {
+                r.lift.lock();
+            }
+
+            @Override
+            public void toggleFalse() {
+                r.lift.unlock();
+            }
+
+            @Override
+            public boolean toggleCondition() {
+                return gamepad1.b;
+            }
+        };
+
+
     }
 
     public void start() {
@@ -19,6 +63,9 @@ public class TeleOP extends OpMode {
     }
 
     public void loop() {
+        bucketArm.update();
+        liftLock.update();
+
         r.setDrivePwr(gamepad1.left_stick_y, gamepad1.right_stick_y);
 
         if (gamepad1.dpad_up) {
@@ -39,4 +86,5 @@ public class TeleOP extends OpMode {
 
         }
     }
+
 }
