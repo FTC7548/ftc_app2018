@@ -14,11 +14,13 @@ public class Lift {
     public void forward() {
         r.BASKET_EXT_L.setPosition(ServoPos.BASKET_EXT_L_FORWARD.pos);
         r.BASKET_EXT_R.setPosition(ServoPos.BASKET_EXT_R_FORWARD.pos);
+        r.BASKET_PIVOT.setPosition(ServoPos.BASKET_PIVOT_DUMP.pos);
     }
 
     public void back() {
         r.BASKET_EXT_L.setPosition(ServoPos.BASKET_EXT_L_BACK.pos);
         r.BASKET_EXT_R.setPosition(ServoPos.BASKET_EXT_R_BACK.pos);
+        r.BASKET_PIVOT.setPosition(ServoPos.BASKET_PIVOT_INTAKE.pos);
     }
 
     public void openGate() {
@@ -54,22 +56,22 @@ public class Lift {
 
     // TODO: Find values for all these servos
     private enum ServoPos {
-        BASKET_EXT_L_FORWARD (.86),
-        BASKET_EXT_L_BACK (.07), // the one that is not servo 5
+        BASKET_EXT_L_FORWARD (.98), // towards 0 = down
+        BASKET_EXT_L_BACK (0.08), // the one that is not servo 5
 
-        BASKET_EXT_R_FORWARD (.93),
-        BASKET_EXT_R_BACK (.12), // servo 5
+        BASKET_EXT_R_FORWARD (.98), // towards 0 = down
+        BASKET_EXT_R_BACK (0.06), // servo 5
 
         HOOK_L_LOCKED (.99), // 3
-        HOOK_L_UNLOCKED (.87),
+        HOOK_L_UNLOCKED (.87), // towards 1 = more locked
 
         HOOK_R_LOCKED (.01), // 6
-        HOOK_R_UNLOCKED (.13),
+        HOOK_R_UNLOCKED (.13), // towards 0 = more locked
 
         GATE_UP (0),
         GATE_DOWN (0),
 
-        BASKET_PIVOT_INTAKE (0.61),
+        BASKET_PIVOT_INTAKE (0.54), // towards 0 = more up from down pos
         BASKET_PIVOT_DUMP (0.44);
 
         public final double pos;

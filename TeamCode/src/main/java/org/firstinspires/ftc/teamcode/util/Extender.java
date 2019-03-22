@@ -25,7 +25,7 @@ public class Extender {
 
     public void intake(float f) {
         r.INTAKE_1.setPower(f * .7);
-        r.INTAKE_1.setPower(f * .7);
+        r.INTAKE_2.setPower(f * .7);
     }
 
     public void gateUp() {
@@ -46,17 +46,17 @@ public class Extender {
 
     // TODO: Find values for all these servos
     private enum ServoPos {
-        INTAKE_EXT_L_FORWARD (1),
-        INTAKE_EXT_L_BACK (.88),
+        INTAKE_EXT_L_FORWARD (0.87), // servo 5
+        INTAKE_EXT_L_BACK (0.64), // towards 1 = down
 
-        INTAKE_EXT_R_FORWARD (0),
-        INTAKE_EXT_R_BACK (.12),
+        INTAKE_EXT_R_FORWARD (0.14), // servo 0
+        INTAKE_EXT_R_BACK (0.58), // towards 0 = down
 
-        GATE_UP (.7),
+        GATE_UP (.71),
         GATE_DOWN (.5),
 
-        BASKET_PIVOT_DOWN (.73),
-        BASKET_PIVOT_UP (.9);
+        BASKET_PIVOT_DOWN (.75),
+        BASKET_PIVOT_UP (1);
 
         public final double pos;
 

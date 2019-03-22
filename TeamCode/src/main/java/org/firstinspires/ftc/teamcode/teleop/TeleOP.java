@@ -13,7 +13,10 @@ public class TeleOP extends OpMode {
     private ToggleServo     bucketArm,
                             bucketPivot,
                             bucketGate,
-                            liftLock;
+                            liftLock,
+                            intakePivot,
+                            intakeBasketPivot,
+                            intakeBasketGate;
 
     public void init() {
         r = new Robot(hardwareMap);
@@ -55,6 +58,57 @@ public class TeleOP extends OpMode {
             }
         };
 
+        intakePivot = new ToggleServo() {
+            @Override
+            public void toggleTrue() {
+                r.extender.extendOut();
+            }
+
+            @Override
+            public void toggleFalse() {
+                r.extender.extendIn();
+            }
+
+            @Override
+            public boolean toggleCondition() {
+                return gamepad1.y;
+            }
+        };
+
+        intakeBasketPivot = new ToggleServo() {
+            @Override
+            public void toggleTrue() {
+                r.extender.pivotDown();
+            }
+
+            @Override
+            public void toggleFalse() {
+                r.extender.pivotUp();
+            }
+
+            @Override
+            public boolean toggleCondition() {
+                return gamepad1.x;
+            }
+        };
+
+        intakeBasketGate = new ToggleServo() {
+            @Override
+            public void toggleTrue() {
+                r.extender.gateUp();
+            }
+
+            @Override
+            public void toggleFalse() {
+                r.extender.gateDown();
+            }
+
+            @Override
+            public boolean toggleCondition() {
+                return gamepad1.dpad_right;
+            }
+        };
+
 
     }
 
@@ -65,6 +119,9 @@ public class TeleOP extends OpMode {
     public void loop() {
         bucketArm.update();
         liftLock.update();
+        intakePivot.update();
+        intakeBasketPivot.update();
+        intakeBasketGate.update();
 
         r.setDrivePwr(gamepad1.left_stick_y, gamepad1.right_stick_y);
 
@@ -77,13 +134,20 @@ public class TeleOP extends OpMode {
             r.extender.setPower(0F);
         }
 
-        if (gamepad1.right_trigger > 0.4) {
+        if (gamepad1.left_trigger > 0.4) {
             r.lift.setPwr(1);
-        } else if (gamepad1.right_bumper) {
+        } else if (gamepad1.left_bumper) {
             r.lift.setPwr(-1);
         } else {
             r.lift.setPwr(0);
+        }
 
+        if (gamepad1.right_trigger > 0.4) {
+            r.extender.intake(-1);
+        } else if (gamepad1.right_bumper) {
+            r.extender.intake(1);
+        } else {
+            r.extender.intake(0);
         }
     }
 
