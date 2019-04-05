@@ -6,6 +6,7 @@ import org.corningrobotics.enderbots.endercv.OpenCVPipeline;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -32,6 +33,7 @@ public class ObjDetectPipeline extends OpenCVPipeline {
         contours = new ArrayList<>();
         Imgproc.findContours(thresholded, contours, new Mat(), Imgproc.RETR_LIST, Imgproc.CHAIN_APPROX_SIMPLE);
         Imgproc.drawContours(rgb, contours, -1, new Scalar(0, 255, 0), 2, 8);
+        Imgproc.line(rgb, new Point(VisionConfig.X_THRESHOLD, 0), new Point(VisionConfig.X_THRESHOLD, rgb.height()), new Scalar(255, 0, 0), 2, 8);
         return rgb;
     }
 }

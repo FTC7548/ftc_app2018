@@ -23,6 +23,12 @@ public class Lift {
         r.BASKET_PIVOT.setPosition(ServoPos.BASKET_PIVOT_INTAKE.pos);
     }
 
+    public void mid() {
+        r.BASKET_EXT_L.setPosition(ServoPos.BASKET_EXT_L_MID.pos);
+        r.BASKET_EXT_R.setPosition(ServoPos.BASKET_EXT_R_MID.pos);
+        r.BASKET_PIVOT.setPosition(ServoPos.BASKET_PIVOT_INTAKE.pos);
+    }
+
     public void openGate() {
         r.HOLDER_GATE.setPosition(ServoPos.GATE_UP.pos);
     }
@@ -58,9 +64,11 @@ public class Lift {
     private enum ServoPos {
         BASKET_EXT_L_FORWARD (.98), // towards 0 = down
         BASKET_EXT_L_BACK (0.08), // the one that is not servo 5
+        BASKET_EXT_L_MID (0.15),
 
         BASKET_EXT_R_FORWARD (.98), // towards 0 = down
         BASKET_EXT_R_BACK (0.06), // servo 5
+        BASKET_EXT_R_MID (0.15),
 
         HOOK_L_LOCKED (.99), // 3
         HOOK_L_UNLOCKED (.87), // towards 1 = more locked

@@ -1,602 +1,328 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.sun.tools.javac.code.Attribute;
+import com.qualcomm.robotcore.util.Range;
 
 import org.corningrobotics.enderbots.endercv.CameraViewDisplay;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
-import org.firstinspires.ftc.teamcode.R;
-import org.firstinspires.ftc.teamcode.util.PhilSwift;
 import org.firstinspires.ftc.teamcode.util.Robot;
 import org.firstinspires.ftc.teamcode.vision.ObjDetectPipeline;
+import org.firstinspires.ftc.teamcode.vision.VisionConfig;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.Rect;
 import org.opencv.imgproc.Imgproc;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
-/**
- * Abstract base class for all autonomous OpModes. This class contains useful methods
- * and components to share between all autonomous modes. This class should be extended
- * and implement `abstract void startOpMode()`
- */
 public abstract class AutonomousOpMode extends LinearOpMode {
 
+    protected Robot r;
 
-    private final double WHL_DIAM = 4;
-    private final int PPR = 1890;
-    private final double PPI = PPR / (WHL_DIAM * Math.PI);
+    private double DRIVE_KP = 0.001;
+    private double DRIVE_KD = 0;
 
-    private final double HDNG_THRESHOLD = 3;
     private final double DRIVE_PID_A = 3;
     private final double DRIVE_PID_B = 0.1;
     private final double TURN_PID_A = 1;
     private final double TURN_PID_B = 0.3;
 
-    public Robot r;
+    private final double WHL_DIAM = 4;
+    private final int PPR = 1890;
+    private final double PPI = PPR / (WHL_DIAM * Math.PI);
+
+    private final int COMPLETE_THRESHOLD = 50;
 
     private ElapsedTime runtime = new ElapsedTime();
-    public ObjDetectPipeline pipeline;
 
-    /**
-     * This method runs after the play button is pressed.  Should be implemented
-     * with whatever the OpMode should do after it runs.
-     */
+    private Telemetry dashboardTelemetry;
+    private ObjDetectPipeline pipeline;
+
     public abstract void startOpMode();
 
-    public void runOpMode() {
+    int BLOCK_POS = -2;
+
+    @Override
+    public void runOpMode() throws InterruptedException {
         telemetry = new MultipleTelemetry(FtcDashboard.getInstance().getTelemetry());
         r = new Robot(hardwareMap);
-        r.lift.lock();
-        /*
-        r.PREVENT_DOWN.setPosition(Robot.RatchetPosition.PREVDOWN_DOWN.position);
-        r.PREVENT_UP.setPosition(Robot.RatchetPosition.PREVUP_DOWN.position);
-        r.DUMP.setPosition(0.2);
+        //r.lift.lock();
+
+        FtcDashboard dashboard = FtcDashboard.getInstance();
+        dashboardTelemetry = dashboard.getTelemetry();
 
         pipeline = new ObjDetectPipeline();
-
         pipeline.init(hardwareMap.appContext, CameraViewDisplay.getInstance(), 1);
-
-        waitForStart();
         pipeline.enable();
-        setCameraPosition(CameraPosition.DOWN);
-        //sleep(1000);
-        */
+        r.lift.lock();
+
         waitForStart();
+
+
+
+        BLOCK_POS = sense();
+        telemetry.addData("pos", BLOCK_POS);
+        telemetry.update();
+
         startOpMode();
+
     }
 
-    /**
-     * Drive around or something
-     * @param inches        Amount to drive, in inches
-     * @param pwr           Motor power at which to run
-     * @param timeout       Time limit for running so it stops eventually
-     */
-    public void drive(double inches, double pwr, double timeout) {
-        if (!opModeIsActive()) return;
-        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        int newLeftTicks = r.DRIVE_LB.getCurrentPosition() + (int)(inches * PPI);
-        int newRightTicks = r.DRIVE_RB.getCurrentPosition() + (int)(inches * PPI);
-        runtime.reset();
-        if (inches > 0) {
-            setPwrNoAbs(pwr);
-            while (r.DRIVE_LB.getCurrentPosition() < newLeftTicks && r.DRIVE_RB.getCurrentPosition()
-                    < newRightTicks && runtime.seconds() < timeout) {
-                telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LB.getCurrentPosition(),
-                        r.DRIVE_RB.getCurrentPosition());
-                telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
-                telemetry.update();
-                if (this.isStopRequested()) {
-                    return;
+    public void drivePID(double speed, double inches, double timeout, double heading) {
+        if (opModeIsActive()) {
+
+
+            r.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            setTargets((int)(inches * PPI));
+
+            double errorAve, integral = 0, previousError;
+
+            double      K_P = AutoConfig.P,
+                        K_I = AutoConfig.I,
+                        K_D = AutoConfig.D;
+
+
+            errorAve = (getError(r.DRIVE_LB) + getError(r.DRIVE_RB) +
+                    getError(r.DRIVE_LF) + getError(r.DRIVE_RF))/4;
+
+            previousError = errorAve;
+            runtime.reset();
+
+            while (opModeIsActive() && !isComplete()) {
+                errorAve = (getError(r.DRIVE_LB) + getError(r.DRIVE_RB) +
+                        getError(r.DRIVE_LF) + getError(r.DRIVE_RF))/4;
+                integral += errorAve;
+
+                double ramp = 0;
+                double initialPwr = 0.2;
+                if (runtime.seconds() < AutoConfig.T_F && inches > 2) {
+                    double b = speed - initialPwr;
+                    ramp = (b * (1 - runtime.seconds() / AutoConfig.T_F)) * (errorAve/Math.abs(errorAve));
                 }
+
+                double pwr = Range.clip(K_P * errorAve + K_I * integral + K_D * (errorAve - previousError), -speed, speed) - ramp;
+
+                double offset = AutoConfig.H_P * (yaw() - heading);
+
+                double l_pwr = Range.clip(pwr - offset, -1, 1);
+                double r_pwr = Range.clip(pwr + offset, -1, 1);
+
+                r.setDrivePwr(l_pwr, r_pwr);
+
+                dashboardTelemetry.addData("power", pwr);
+                dashboardTelemetry.addData("ramp", ramp);
+                dashboardTelemetry.addData("error", errorAve);
+                dashboardTelemetry.addData("three", 3);
+                dashboardTelemetry.update();
+
+                previousError = errorAve;
+
             }
-        } else {
-            setPwrNoAbs(-pwr);
-            while (r.DRIVE_LB.getCurrentPosition() > newLeftTicks && r.DRIVE_RB.getCurrentPosition()
-                    > newRightTicks && runtime.seconds() < timeout) {
-                telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LB.getCurrentPosition(),
-                        r.DRIVE_RB.getCurrentPosition());
-                telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
-                telemetry.update();
-                if (this.isStopRequested()) {
-                    return;
-                }
-            }
+
+            r.setDrivePwr(0, 0);
         }
-        setPwr(0);
     }
 
-    public void drivePID(double inches, double initialPwr, double timeout) {
-        if (!opModeIsActive()) return;
-        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        int newLeftTicks = r.DRIVE_LF.getCurrentPosition() + (int)(inches * PPI);
-        int newRightTicks = r.DRIVE_RB.getCurrentPosition() + (int)(inches * PPI);
-        int initialLeftTicks = r.DRIVE_LF.getCurrentPosition();
-        runtime.reset();
-        if (inches > 0) {
-            while (r.DRIVE_LF.getCurrentPosition() < newLeftTicks && r.DRIVE_RB.getCurrentPosition()
-                    < newRightTicks && runtime.seconds() < timeout) {
-                double pidPwr = drivePIDPwr((r.DRIVE_LF.getCurrentPosition() - initialLeftTicks) / (inches * PPI), DRIVE_PID_A, DRIVE_PID_B);
-
-                //double pidPwr = Math.pow((1 / Math.cosh((r.DRIVE_RB.getCurrentPosition() - initialRightTicks - (0.5 * inches * PPI)) * 2 / (inches * PPI))), 2);
-                setPwrNoAbs(initialPwr * pidPwr);
-                telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LF.getCurrentPosition(),
-                        r.DRIVE_RB.getCurrentPosition());
-                telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
-                telemetry.addData("Pwr", "%s", initialPwr * pidPwr);
-                telemetry.addData("Progress", "%s", r.DRIVE_LF.getCurrentPosition() - initialLeftTicks);
-                telemetry.update();
-                if (this.isStopRequested()) {
-                    return;
-                }
-            }
-        } else {
-            while (r.DRIVE_LB.getCurrentPosition() > newLeftTicks && r.DRIVE_RB.getCurrentPosition()
-                    > newRightTicks && runtime.seconds() < timeout) {
-                double pidPwr = drivePIDPwr((r.DRIVE_LF.getCurrentPosition() - initialLeftTicks) / (inches * PPI), 3, 0.1);
-                //double pidPwr = Math.pow((1 / Math.cosh(((r.DRIVE_RB.getCurrentPosition() - initialRightTicks - (0.5 * inches * PPI))) * 2 / (inches * PPI))), 2);
-                setPwrNoAbs(-initialPwr * pidPwr);
-                telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LB.getCurrentPosition(),
-                        r.DRIVE_RB.getCurrentPosition());
-                telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
-                telemetry.addData("Pwr", "%s", initialPwr * pidPwr);
-                telemetry.addData("Progress", "%s", r.DRIVE_LB.getCurrentPosition() - initialLeftTicks);
-                telemetry.update();
-                if (this.isStopRequested()) {
-                    return;
-                }
-            }
-        }
-        setPwr(0);
-        resetEnc();
-    }
-
-    public void drive2(double inches, double initialPwr, double timeout) {
-        if (!opModeIsActive()) return;
-        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        int newLeftTicks = r.DRIVE_LF.getCurrentPosition() + (int)(inches * PPI);
-        int newRightTicks = r.DRIVE_RB.getCurrentPosition() + (int)(inches * PPI);
-        int initialLeftTicks = r.DRIVE_LF.getCurrentPosition();
-        runtime.reset();
-        if (inches > 0) {
-            while (r.DRIVE_LF.getCurrentPosition() < newLeftTicks && r.DRIVE_RB.getCurrentPosition()
-                    < newRightTicks && runtime.seconds() < timeout) {
-                double pidPwr = drivePIDPwr((r.DRIVE_LF.getCurrentPosition() - initialLeftTicks) / (inches * PPI), 3, 0.1);
-
-                //double pidPwr = Math.pow((1 / Math.cosh((r.DRIVE_RB.getCurrentPosition() - initialRightTicks - (0.5 * inches * PPI)) * 2 / (inches * PPI))), 2);
-                setPwrNoAbs(initialPwr * pidPwr);
-                telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LF.getCurrentPosition(),
-                        r.DRIVE_RB.getCurrentPosition());
-                telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
-                telemetry.addData("Pwr", "%s", initialPwr * pidPwr);
-                telemetry.addData("Progress", "%s", r.DRIVE_LF.getCurrentPosition() - initialLeftTicks);
-                telemetry.update();
-                if (this.isStopRequested()) {
-                    return;
-                }
-            }
-        } else {
-            while (r.DRIVE_LB.getCurrentPosition() > newLeftTicks && r.DRIVE_RB.getCurrentPosition()
-                    > newRightTicks && runtime.seconds() < timeout) {
-                double pidPwr = drivePIDPwr((r.DRIVE_LF.getCurrentPosition() - initialLeftTicks) / (inches * PPI), 3, 0.1);
-                //double pidPwr = Math.pow((1 / Math.cosh(((r.DRIVE_RB.getCurrentPosition() - initialRightTicks - (0.5 * inches * PPI))) * 2 / (inches * PPI))), 2);
-                setPwrNoAbs(-initialPwr * pidPwr);
-                telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LB.getCurrentPosition(),
-                        r.DRIVE_RB.getCurrentPosition());
-                telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
-                telemetry.addData("Pwr", "%s", initialPwr * pidPwr);
-                telemetry.addData("Progress", "%s", r.DRIVE_LB.getCurrentPosition() - initialLeftTicks);
-                telemetry.update();
-                if (this.isStopRequested()) {
-                    return;
-                }
-            }
-        }
-        setPwr(0);
-        resetEnc();
-    }
-
-    public double drivePIDPwr(double ratio, double a, double b) {
-        double k = (ratio * a) + b;
-        return sech2(k / 2) * Math.tanh(4 * k);
+    public void setTargets(int increase) {
+        r.DRIVE_LB.setTargetPosition(r.DRIVE_LB.getCurrentPosition() + increase);
+        r.DRIVE_LF.setTargetPosition(r.DRIVE_LF.getCurrentPosition() + increase);
+        r.DRIVE_RF.setTargetPosition(r.DRIVE_RF.getCurrentPosition() + increase);
+        r.DRIVE_RB.setTargetPosition(r.DRIVE_RB.getCurrentPosition() + increase);
 
     }
 
-
-
-    public double sech2(double x) {
-        return Math.pow(1 / Math.cosh(x), 2);
-    }
-
-
-
-    public void encTurn(double linches, double rinches, double pwr, double timeout) {
-        if (!opModeIsActive()) return;
-        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        int newLeftTicks = r.DRIVE_LF.getCurrentPosition() + (int)(linches * PPI);
-        int newRightTicks = r.DRIVE_RB.getCurrentPosition() + (int)(rinches * PPI);
-        runtime.reset();
-        double lpwr, rpwr;
-        lpwr = (linches > 0? pwr:-pwr);
-        rpwr = (rinches > 0? pwr:-pwr);
-        r.setDrivePwr(lpwr, rpwr);
-
-        while (!(Math.abs(r.DRIVE_LF.getCurrentPosition() - newLeftTicks) < 100 && Math.abs(r.DRIVE_RB.getCurrentPosition() - newRightTicks) < 100)
-                && runtime.seconds() < timeout && opModeIsActive()) {
-
-            if ((Math.abs(r.DRIVE_LF.getCurrentPosition() - newLeftTicks) < 100)) {
-                r.DRIVE_LB.setPower(0);
-                r.DRIVE_LF.setPower(0);
-            }
-
-            if ((Math.abs(r.DRIVE_RB.getCurrentPosition() - newRightTicks) < 100)) {
-                r.DRIVE_RB.setPower(0);
-                r.DRIVE_RF.setPower(0);
-            }
-
-            telemetry.addData("Turning", "%s | %s", linches, rinches);
-            telemetry.addData("Pwr", "%s | %s", r.DRIVE_LF.getPower(), r.DRIVE_RB.getPower());
-            telemetry.addData("Pos", "%05d | %05d", r.DRIVE_LF.getCurrentPosition(), r.DRIVE_RB.getCurrentPosition());
-            telemetry.addData("Tgt", "%05d | %05d", newLeftTicks, newRightTicks);
-            telemetry.addData("Diff", "%05d | %05d", r.DRIVE_LF.getCurrentPosition() - newLeftTicks,
-                    r.DRIVE_RB.getCurrentPosition() - newRightTicks);
-            telemetry.update();
-            if (this.isStopRequested()) {
-                return;
-            }
-        }
-
-
-        setPwr(0);
-    }
-
-    /**
-     * Set encoder target position
-     * @param lf    Left's target position, in ticks
-     * @param rt    Right's target position, in ticks
-     */
-    private void setTarget(int lf, int rt) {
-        r.DRIVE_LB.setTargetPosition(lf);
-        r.DRIVE_RB.setTargetPosition(rt);
-    }
-
-    /**
-     * Set power of all motors to a certain value
-     * @param pwr   Power of motors
-     */
-    public void setPwr(double pwr) {
-        pwr = Math.abs(pwr);
-        r.DRIVE_LB.setPower(pwr);
-        r.DRIVE_LF.setPower(pwr);
-        r.DRIVE_RF.setPower(pwr);
-        r.DRIVE_RB.setPower(pwr);
-    }
-
-    /**
-     * Set all motors to the same power, regardless of direction
-     * @param pwr   Motor power
-     */
-    public void setPwrNoAbs(double pwr) {
-        r.DRIVE_LB.setPower(pwr);
-        r.DRIVE_LF.setPower(pwr);
-        r.DRIVE_RF.setPower(pwr);
-        r.DRIVE_RB.setPower(pwr);
-    }
-
-    /**
-     * Set the power of the Left drive motors
-     * @param pwr   Motor power
-     */
-    public void setLPwr(double pwr) {
-        r.DRIVE_LB.setPower(pwr);
-        r.DRIVE_LF.setPower(pwr);
-    }
-
-    /**
-     * Set the power of the Right drive motors
-     * @param pwr   Motor power
-     */
-    public void setRPwr(double pwr) {
-        r.DRIVE_RB.setPower(pwr);
-        r.DRIVE_RF.setPower(pwr);
-    }
-
-    /**
-     * Turns the robot until a certain heading, from the gyro sensor, running L & R motors in opposite directions
-     * @param heading   Heading, in degrees
-     * @param pwr       Motor power
-     * @param dir       Direction, either -1 or 1
-     * @param timeout   Time limit for operation
-     */
-    public void turnUntilHeading(double heading, double pwr, double dir, double timeout) {
-        if (!opModeIsActive()) return;
-        double yaw = yaw();
-        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        runtime.reset();
-        while (Math.abs(distance(yaw(), heading)) > HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
-            yaw = yaw();
-            setLPwr(distance(yaw, heading) < 0? -pwr * dir:pwr * dir);
-            setRPwr(distance(yaw, heading) > 0? -pwr * dir:pwr * dir);
-            telemetry.addData("Turning", distance(yaw, heading) > 0? "Right":"Left");
-            telemetry.addData("Power", pwr);
-            telemetry.addData("", "Heading Target: %s | Actual: %s", heading, yaw);
-            telemetry.addData("", "Distance: %s", distance(yaw,heading));
-            telemetry.update();
-
-            if (this.isStopRequested()) {
-                return;
-            }
-        }
-        resetEnc();
-        setPwr(0);
-    }
-
-    /**
-     * Turns the robot until a certain heading, from the gyro sensor, running L & R motors in opposite directions
-     * @param heading   Heading, in degrees
-     * @param startpwr       Motor power
-     * @param dir       Direction, either -1 or 1
-     * @param timeout   Time limit for operation
-     */
-    public void turnUntilHeadingPID(double heading, double startpwr, double dir, double timeout) {
-        if (!opModeIsActive()) return;
-        double yaw = yaw();
-        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        runtime.reset();
-        double initialDist = distance(yaw, heading);
-        while (Math.abs(distance(yaw(), heading)) > HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
-            yaw = yaw();
-            double pwr = startpwr*drivePIDPwr((initialDist - distance(yaw, heading)) / initialDist, TURN_PID_A, TURN_PID_B);
-            if (Math.abs(distance(yaw(), heading)) < HDNG_THRESHOLD) {
-                break;
-            }
-            setLPwr(distance(yaw, heading) < 0? -pwr * dir:pwr * dir);
-            setRPwr(distance(yaw, heading) > 0? -pwr * dir:pwr * dir);
-            if (Math.abs(distance(yaw(), heading)) < HDNG_THRESHOLD) {
-                break;
-            }
-            telemetry.addData("Turning", distance(yaw, heading) > 0? "Right":"Left");
-            telemetry.addData("Power", pwr);
-            telemetry.addData("", "Heading Target: %s | Actual: %s", heading, yaw);
-            telemetry.addData("", "Distance: %s : %s", distance(yaw,heading), initialDist);
-            if (Math.abs(distance(yaw(), heading)) < HDNG_THRESHOLD) {
-                break;
-            }
-            telemetry.update();
-
-
-            if (this.isStopRequested()) {
-                return;
-            }
-        }
-        resetEnc();
-        setPwr(0);
-    }
-
-    /**
-     * Drag the left wheels while turning
-     * @param heading   Heading, in degrees
-     * @param pwr       Motor power
-     * @param dir       Direction, either 1 or -1
-     * @param timeout   Time limit for operation
-     */
-    public void dragLeftTurnHeading(double heading, double pwr, double dir, double timeout) {
-        if (!opModeIsActive()) return;
-        double yaw = yaw();
-        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        runtime.reset();
-        while (Math.abs(distance(yaw, heading)) > HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
-            setLPwr(distance(yaw, heading) < 0 ? -pwr * dir : pwr * dir);
-            //setRPwr(distance(yaw, heading) > 0? -pwr * dir:pwr * dir);
-            telemetry.addData("Turning", distance(yaw, heading) > 0 ? "Right" : "Left");
-            telemetry.addData("Power", pwr);
-            telemetry.addData("", "Heading Target: %s | Actual: %s", heading, yaw);
-            telemetry.addData("", "Distance: %s", distance(yaw, heading));
-            telemetry.update();
-            yaw = yaw();
-
-            if (this.isStopRequested()) {
-                return;
-            }
-        }
-        resetEnc();
-        setPwr(0);
-    }
-
-    /**
-     * Drag the right wheels while turning
-     * @param heading   Heading, in degrees
-     * @param pwr       Motor power
-     * @param dir       Direction, either 1 or -1
-     * @param timeout   Time limit for operation
-     */
-    public void dragRightTurnHeading(double heading, double pwr, double dir, double timeout) {
-        if (!opModeIsActive()) return;
-        double yaw = yaw();
-        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        runtime.reset();
-        while (Math.abs(distance(yaw, heading)) > HDNG_THRESHOLD && opModeIsActive() && runtime.seconds() < timeout) {
-            //setLPwr(distance(yaw, heading) < 0? -pwr * dir:pwr * dir);
-            setRPwr(distance(yaw, heading) > 0? -pwr * dir:pwr * dir);
-            telemetry.addData("Turning", distance(yaw, heading) > 0? "Right":"Left");
-            telemetry.addData("Power", pwr);
-            telemetry.addData("", "Heading Target: %s | Actual: %s", heading, yaw);
-            telemetry.addData("", "Distance: %s", distance(yaw,heading));
-            telemetry.update();
-            yaw = yaw();
-            if (this.isStopRequested()) {
-                return;
-            }
-        }
-        resetEnc();
-        setPwr(0);
-    }
-
-    public void driveTimeout(double pwr, double timeout) {
-        if (!opModeIsActive()) return;
-        r.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        runtime.reset();
-        r.setDrivePwr(pwr, pwr);
-        while (runtime.seconds() < timeout && opModeIsActive()) {
-            telemetry.addData("Time", "%s s / %s s", runtime.seconds(), timeout);
-            telemetry.update();
-            if (this.isStopRequested()) {
-                return;
-            }
-        }
-        r.setDrivePwr(0, 0);
-    }
-
-    /**
-     * @return Motors busy?
-     */
-    public boolean busy() {
-        return r.DRIVE_RB.isBusy() && r.DRIVE_LB.isBusy() && r.DRIVE_LF.isBusy() && r.DRIVE_RF.isBusy();
-    }
-
-    /**
-     * @return Get pitch from IMU
-     */
-    public double pitch() {
-        return r.IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).thirdAngle - 3;
-    }
-
-    /**
-     * @return Get yaw from IMU
-     */
     public double yaw() {
         return r.IMU.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES).firstAngle;
     }
 
-    /**
-     * @return Find distance between two angles, in degrees
-     */
-    public double distance(double angle1, double angle2) {
-        return ((angle2 - angle1 + 180) % 360) - 180;
+    public int getError(DcMotorEx motor) {
+        return motor.getTargetPosition() - motor.getCurrentPosition();
     }
 
-    /**
-     * Reset all motor encoders
-     */
-    public void resetEnc() {
-        r.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        idle();
-        r.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    public boolean isComplete() {
+        return  Math.abs(getError(r.DRIVE_LB)) < COMPLETE_THRESHOLD &&
+                Math.abs(getError(r.DRIVE_RB)) < COMPLETE_THRESHOLD &&
+                Math.abs(getError(r.DRIVE_LF)) < COMPLETE_THRESHOLD &&
+                Math.abs(getError(r.DRIVE_RF)) < COMPLETE_THRESHOLD;
     }
 
-    public int contourCount() {
-        List<MatOfPoint> contours = pipeline.getContours();
-        return contours.size();
-    }
+    public void turnPID(double tgt_heading, double max_pwr, double timeout) {
+        if (opModeIsActive()) {
 
-    public double avgContourSize() {
-        double cumulative_size = 0;
-        int num = 0;
-        for (MatOfPoint c : pipeline.getContours()) {
-            cumulative_size += c.size().area();
-            num++;
+            r.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            double error, initialError, integral;
+
+            error = getError(tgt_heading);
+            initialError = error;
+
+
+            runtime.reset();
+
+            while (opModeIsActive() && (Math.abs(error) > 3)) {
+
+                error = getError(tgt_heading);
+
+
+                double ramp = 0;
+                double pwr = Range.clip(AutoConfig.TURN_P * error, -max_pwr, max_pwr) - ramp;
+                r.setDrivePwr(pwr, -pwr);
+
+                dashboardTelemetry.addData("power", pwr);
+                dashboardTelemetry.addData("ramp", ramp);
+                dashboardTelemetry.addData("error", error);
+                dashboardTelemetry.addData("heading", yaw());
+                dashboardTelemetry.update();
+
+
+            }
+
+            r.setDrivePwr(0, 0);
         }
-        return cumulative_size / num;
     }
 
-    public double[] maxContourSize() {
-        double max = 0;
-        double x = 0, y = 0;
 
-        for (MatOfPoint c : pipeline.getContours()) {
-            if (c.size().area() > max) {
-                Rect boundingRect = Imgproc.boundingRect(c);
-                double xi = (boundingRect.x + boundingRect.width) / 2;
-                double yi = (boundingRect.x + boundingRect.width) / 2;
-                if (sensingCenter) {
-                    if (yi > 180 && yi < 250) {
-                        max = c.size().area();
-                        x=xi; y=yi;
-                    }
-                } else {
-                    if (xi > 120 && xi < 210 && yi > 120 && yi < 210) {
-                        max = c.size().area();
-                        x=xi; y=yi;
-                    }
+    public void turnNoPID(double tgt_heading, double max_pwr, double timeout) {
+        if (opModeIsActive()) {
+
+            r.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+            double error, initialError, integral;
+
+            error = getError(tgt_heading);
+            initialError = error;
+
+
+            runtime.reset();
+
+            while (opModeIsActive() && (Math.abs(error) > 10)) {
+
+                error = getError(tgt_heading);
+
+
+
+                //double ramp = 0;
+                //double pwr = Range.clip(AutoConfig.TURN_P * error, -max_pwr, max_pwr) - ramp;
+                r.setDrivePwr(max_pwr, -max_pwr);
+
+                dashboardTelemetry.addData("power", max_pwr);
+                dashboardTelemetry.addData("ramp", 0);
+                dashboardTelemetry.addData("error", error);
+                dashboardTelemetry.addData("heading", yaw());
+                dashboardTelemetry.update();
+
+
+            }
+
+            r.setDrivePwr(0, 0);
+        }
+    }
+
+    public double getError(double tgt) {
+        double error = tgt - yaw();
+        while (error > 180 || error < -180) {
+            if (error > 180) error -= 360;
+            if (error < -180) error += 360;
+        }
+        return error;
+    }
+
+    public void runTurn() {
+
+    }
+
+    public void unlatch() {
+        r.extender.extendStore();
+        r.lift.mid();
+        sleep(250);
+
+        r.lift.setPwr(-1);
+        sleep(500);
+        r.lift.unlock();
+        sleep(200);
+        r.lift.setPwr(1);
+        sleep(100);
+        r.lift.back();
+        sleep(650);
+        r.lift.setPwr(0);
+    }
+
+    /**
+     * Senses position of block
+     * @return -1 if left, 0 if center, 1 if right
+     */
+    public int sense() {
+        runtime.reset();
+        int pos = -2;
+        while (pos == -2 && runtime.seconds() < 3) {
+            List<MatOfPoint> contours = pipeline.getContours();
+            if (contours.size() == 0) {
+                telemetry.addData("average x/y", "NO POINTS FOUND");
+                telemetry.update();
+                continue;
+            }
+
+            ArrayList<Rect> inBounds = new ArrayList<Rect>();
+            for (int i = 0; i < contours.size(); i++) {
+                Rect boundingRect = Imgproc.boundingRect(contours.get(i));
+                double x = boundingRect.x + boundingRect.width / 2;
+                //double y = boundingRect.y + boundingRect.height / 2;
+
+                if (x > VisionConfig.X_THRESHOLD) {
+                    inBounds.add(boundingRect);
+                    //telemetry.addData("CONTOUR", "(%s, %s) %s", boundingRect.x + boundingRect.width / 2,
+                    //boundingRect.y + boundingRect.height / 2, boundingRect.area());
                 }
 
             }
 
-        }
-        double[] pos = {max, x, y};
-        return pos;
-    }
-
-    boolean sensingCenter = false;
-
-    public double[] maxContourSizeNoFilter() {
-        double max = 0;
-        double x = 0, y = 0;
-
-        for (MatOfPoint c : pipeline.getContours()) {
-            if (c.size().area() > max) {
-                Rect boundingRect = Imgproc.boundingRect(c);
-                double xi = (boundingRect.x + boundingRect.width) / 2;
-                double yi = (boundingRect.x + boundingRect.width) / 2;
-                //if (xi > 120 && xi < 210 && yi > 120 && yi < 210) {
-                    max = c.size().area();
-                    x=xi; y=yi;
-                //}
+            Collections.sort(inBounds, new SortContourBySize());
+            if (inBounds.size() > 0) {
+                Rect biggest = inBounds.get(0);
+                double y = biggest.y + biggest.height / 2;
+                if (y < 200) {
+                    telemetry.addData("BEST GUESS", "RIGHT");
+                    telemetry.update();
+                    sleep(500);
+                    return 1;
+                } else if (y < 400) {
+                    telemetry.addData("BEST GUESS", "CENTER");
+                    telemetry.update();
+                    sleep(500);
+                    return 0;
+                } else {
+                    telemetry.addData("BEST GUESS", "LEFT");
+                    telemetry.update();
+                    sleep(500);
+                    return -1;
+                }
+            } else {
+                telemetry.addData("NO CONTOURS FOUND IN RANGE", "");
             }
-
+            telemetry.update();
+            idle();
         }
-        double[] pos = {max, x, y};
-        return pos;
+        sleep(500);
+        return -2;
     }
 
-    public enum CameraPosition {
-        // pitch, yaw
-        CENTER (0.75, 0.55), // 224, 223
-        LEFT (0.75, 0.25), // 170, 170
-        RIGHT (0.75, 0.8), // 156, 156
-        DOWN (0.85, 0.45);
 
-        private final double pitch, yaw;
-
-        private CameraPosition(double pitch, double yaw) {
-            this.pitch = pitch;
-            this.yaw = yaw;
+    class SortContourBySize implements Comparator<Rect> {
+        public int compare(Rect a, Rect b) {
+            return (int)Math.round(Math.ceil(b.area() - a.area()));
         }
     }
 
-    double[] counts = {0, 0, 0};
-    double[][] avg_sizes = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
-    double[][] max_sizes = {{0, 0, 0}, {0, 0, 0}, {0, 0, 0}};
 
-    public void setCounts(int index) {
-        for (int i = 0; i < 6; i++) {
-            if (max_sizes[index][0] < maxContourSize()[0]) {
-                counts[index] = contourCount();
-                avg_sizes[index] = maxContourSizeNoFilter();
-                max_sizes[index] = maxContourSize();
-            }
-            sleep(50);
-        }
-    }
-
-    public int bestGoldGuess() {
-        // counts, avg_sizes, max_sizes
-        // 0 is left
-        int pos = 0;
-        for (int i = 0; i < 3; i++) {
-            if (max_sizes[i][0] > max_sizes[pos][0]) {
-                pos = i;
-            }
-        }
-        return pos;
-    }
 
 }
-

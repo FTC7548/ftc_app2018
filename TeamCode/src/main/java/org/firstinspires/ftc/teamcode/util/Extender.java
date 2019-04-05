@@ -44,13 +44,21 @@ public class Extender {
         r.INTAKE_PIVOT.setPosition(ServoPos.BASKET_PIVOT_DOWN.pos);
     }
 
+    public void extendStore() {
+        r.INTAKE_EXT_L.setPosition(ServoPos.INTAKE_EXT_L_STORE.pos);
+        r.INTAKE_EXT_R.setPosition(ServoPos.INTAKE_EXT_R_STORE.pos);
+
+    }
+
     // TODO: Find values for all these servos
     private enum ServoPos {
         INTAKE_EXT_L_FORWARD (0.87), // servo 5
         INTAKE_EXT_L_BACK (0.64), // towards 1 = down
+        INTAKE_EXT_L_STORE (0.45),
 
         INTAKE_EXT_R_FORWARD (0.14), // servo 0
         INTAKE_EXT_R_BACK (0.58), // towards 0 = down
+        INTAKE_EXT_R_STORE (0.78),
 
         GATE_UP (.71),
         GATE_DOWN (.5),

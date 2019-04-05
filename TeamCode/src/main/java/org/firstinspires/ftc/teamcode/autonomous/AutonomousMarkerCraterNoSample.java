@@ -2,13 +2,47 @@ package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
-import org.firstinspires.ftc.teamcode.util.Robot;
-
 @Autonomous(name = "for millilani")
 public class AutonomousMarkerCraterNoSample extends AutonomousOpMode {
 
     @Override
     public void startOpMode() {
+        unlatch();
+        sleep(500);
+        drivePID(1, 1, 5, 0);
+        sleep(500);
+        if (BLOCK_POS == -1) {
+            turnPID(45, 0.7, 5);
+            drivePID(0.7, 9.5, 5, 0);
+            drivePID(0.7, -9.5, 5, 0);
+        } else if (BLOCK_POS == 0) {
+            drivePID(0.7, 3, 5, 0);
+            drivePID(0.7, -3, 5, 0);
+        } else {
+            turnPID(-45, 0.7, 5);
+            drivePID(0.7, 9.5, 5, 0);
+            drivePID(0.7, -9.5, 5, 0);
+        }
+
+        turnPID(75, 0.7, 0);
+        drivePID(1, 16, 5, 0);
+        turnPID(135, 0.7, 0);
+        drivePID(1, 15, 5, 0);
+        r.extender.extendOut();
+        sleep(500);
+        r.extender.extendIn();
+        turnNoPID(90, 0.8, 0);
+        turnPID(315, 0.8, 5);
+        drivePID(1, 16, 4, 0);
+
+
+
+
+
+
+
+
+        /*
         r.lift.unlock();
         r.extender.extendIn();
         sleep(100);
@@ -24,6 +58,6 @@ public class AutonomousMarkerCraterNoSample extends AutonomousOpMode {
         sleep(100);
         r.extender.extendOut();
         r.extender.pivotDown();
-        sleep(10000);
+        sleep(10000); */
     }
 }

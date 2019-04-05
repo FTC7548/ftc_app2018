@@ -4,6 +4,7 @@ import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -22,7 +23,7 @@ public class Robot {
     /**
      * Drive motors
      */
-    public DcMotor      DRIVE_LF,
+    public DcMotorEx    DRIVE_LF,
                         DRIVE_LB,
                         DRIVE_RF,
                         DRIVE_RB;
@@ -85,10 +86,10 @@ public class Robot {
     public Robot(HardwareMap hm) {
         this.hm = hm;
 
-        DRIVE_LF = hm.dcMotor.get("drive_lf");
-        DRIVE_RF = hm.dcMotor.get("drive_rf");
-        DRIVE_LB = hm.dcMotor.get("drive_lb");
-        DRIVE_RB = hm.dcMotor.get("drive_rb");
+        DRIVE_LF = (DcMotorEx)hm.dcMotor.get("drive_lf");
+        DRIVE_RF = (DcMotorEx)hm.dcMotor.get("drive_rf");
+        DRIVE_LB = (DcMotorEx)hm.dcMotor.get("drive_lb");
+        DRIVE_RB = (DcMotorEx)hm.dcMotor.get("drive_rb");
         DRIVE_LF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         DRIVE_LB.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         DRIVE_RF.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -100,6 +101,9 @@ public class Robot {
         LIFT_L = hm.dcMotor.get("lift_l");
         LIFT_R = hm.dcMotor.get("lift_r");
 
+        LIFT_L.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        LIFT_R.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         HOOK_L = hm.servo.get("hook_l"); // 3
         HOOK_R = hm.servo.get("hook_r"); // 6
 
@@ -110,6 +114,9 @@ public class Robot {
 
         EXTEND_L = hm.dcMotor.get("extend_l");
         EXTEND_R = hm.dcMotor.get("extend_r");
+
+        EXTEND_L.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        EXTEND_R.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         INTAKE_1 = hm.crservo.get("intake_1"); // 2
         INTAKE_2 = hm.crservo.get("intake_2"); // 3
