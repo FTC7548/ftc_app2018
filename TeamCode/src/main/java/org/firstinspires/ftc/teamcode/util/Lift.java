@@ -56,7 +56,7 @@ public class Lift {
     }
 
     public void setPwr(double pwr) {
-        r.LIFT_L.setPower(-pwr);
+        r.LIFT_L.setPower(pwr);
         r.LIFT_R.setPower(pwr);
     }
 

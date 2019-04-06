@@ -208,12 +208,13 @@ public abstract class AutonomousOpMode extends LinearOpMode {
             while (opModeIsActive() && (Math.abs(error) > 10)) {
 
                 error = getError(tgt_heading);
+                double errorSign = Math.abs(error) / error;
 
 
 
                 //double ramp = 0;
                 //double pwr = Range.clip(AutoConfig.TURN_P * error, -max_pwr, max_pwr) - ramp;
-                r.setDrivePwr(max_pwr, -max_pwr);
+                r.setDrivePwr(errorSign * max_pwr, -errorSign * max_pwr);
 
                 dashboardTelemetry.addData("power", max_pwr);
                 dashboardTelemetry.addData("ramp", 0);
@@ -243,9 +244,9 @@ public abstract class AutonomousOpMode extends LinearOpMode {
 
     public void unlatch() {
         r.extender.extendStore();
+        sleep(250);
         r.lift.mid();
         sleep(250);
-
         r.lift.setPwr(-1);
         sleep(500);
         r.lift.unlock();
@@ -255,6 +256,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         r.lift.back();
         sleep(650);
         r.lift.setPwr(0);
+        r.lift.back();
     }
 
     /**
@@ -314,6 +316,48 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         }
         sleep(500);
         return -2;
+    }
+
+    public void moveLift(double pwr, int ticks) {
+        new Thread(new LiftMover(ticks, pwr)).start();
+    }
+
+    public void liftEncoder(double pwr, int target) {
+        r.LIFT_L.setTargetPosition(target);
+        r.LIFT_R.setTargetPosition(target);
+
+        r.LIFT_L.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        r.LIFT_R.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+
+        r.LIFT_L.setPower(pwr);
+        r.LIFT_R.setPower(pwr);
+
+        while (opModeIsActive() && r.LIFT_L.isBusy() && r.LIFT_R.isBusy()) {
+
+            sleep(100);
+        }
+
+        r.LIFT_L.setPower(0);
+        r.LIFT_R.setPower(0);
+
+        r.LIFT_L.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        r.LIFT_R.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    class LiftMover implements Runnable {
+
+        private int target;
+        private double pwr;
+
+        public LiftMover(int target, double pwr) {
+            this.target = target;
+            this.pwr = pwr;
+        }
+
+        @Override
+        public void run() {
+            liftEncoder(pwr, target);
+        }
     }
 
 

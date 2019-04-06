@@ -5,6 +5,7 @@ import com.qualcomm.hardware.bosch.JustLoggingAccelerationIntegrator;
 import com.qualcomm.hardware.kauailabs.NavxMicroNavigationSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -101,8 +102,13 @@ public class Robot {
         LIFT_L = hm.dcMotor.get("lift_l");
         LIFT_R = hm.dcMotor.get("lift_r");
 
+        LIFT_L.setDirection(DcMotor.Direction.REVERSE);
+
         LIFT_L.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         LIFT_R.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        LIFT_L.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        LIFT_L.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         HOOK_L = hm.servo.get("hook_l"); // 3
         HOOK_R = hm.servo.get("hook_r"); // 6
