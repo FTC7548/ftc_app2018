@@ -1,8 +1,9 @@
 package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
-@Autonomous(name = "for millilani")
+@Autonomous(name = "Crater Side, Depot, 1-Sample")
 public class AutonomousMarkerCraterNoSample extends AutonomousOpMode {
 
     @Override
@@ -10,33 +11,42 @@ public class AutonomousMarkerCraterNoSample extends AutonomousOpMode {
         unlatch();
         sleep(500);
         drivePID(1, 1, 5, 0);
-        moveLift(0.5, 0);
+        //moveLift(0.5, 0);
+        r.LIFT_L.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+        r.LIFT_R.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         if (BLOCK_POS == -1) {
             turnPID(45, 0.8, 5);
             drivePID(0.8, 10, 5, 0);
             drivePID(0.8, -10, 5, 0);
         } else if (BLOCK_POS == 0) {
-            drivePID(0.8, 3, 5, 0);
-            drivePID(0.8, -3, 5, 0);
+            drivePID(0.8, 8, 5, 0);
+            drivePID(0.8, -8, 5, 0);
         } else {
             turnPID(-45, 0.7, 5);
             drivePID(0.8, 10, 5, 0);
             drivePID(0.8, -10, 5, 0);
         }
 
+        r.LIFT_L.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        r.LIFT_R.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         turnPID(75, 0.8, 0);
-        drivePID(1, 16, 5, 0);
+        drivePID(1, 17, 5, 0);
         turnPID(135, 0.8, 0);
         drivePID(1, 15, 5, 0);
         r.extender.extendOut();
         sleep(300);
         r.extender.extendStore();
+        sleep(500);
         turnNoPID(90, 0.8, 0);
         turnPID(315, 0.8, 5);
         drivePID(1, 16, 4, 0);
 
-
+        r.extender.setPower(0.8F);
+        sleep(500);
+        r.extender.setPower(0);
+        r.extender.extendOut();
 
 
 

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.teleop;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import org.firstinspires.ftc.teamcode.util.Macro;
 import org.firstinspires.ftc.teamcode.util.Robot;
 import org.firstinspires.ftc.teamcode.util.ToggleServo;
 
@@ -18,9 +19,10 @@ public class TeleOP extends OpMode {
                             intakeBasketPivot,
                             intakeBasketGate;
 
+    private Macro           macroMgr;
+
     public void init() {
         r = new Robot(hardwareMap);
-
 
         bucketArm = new ToggleServo() {
 
@@ -62,11 +64,18 @@ public class TeleOP extends OpMode {
             @Override
             public void toggleTrue() {
                 r.extender.extendOut();
+                r.extender.intake(1);
             }
 
             @Override
             public void toggleFalse() {
                 r.extender.extendIn();
+                if (!(gamepad1.right_trigger > 0.4)) {
+                    r.extender.intake(-1);
+                } else {
+                    r.extender.intake(1);
+                }
+
             }
 
             @Override
@@ -96,11 +105,14 @@ public class TeleOP extends OpMode {
             @Override
             public void toggleTrue() {
                 r.extender.gateUp();
+                //r.extender.extendTransfer();
             }
 
             @Override
             public void toggleFalse() {
                 r.extender.gateDown();
+                r.INTAKE_PIVOT.setPosition(0.9);
+
             }
 
             @Override
@@ -108,6 +120,46 @@ public class TeleOP extends OpMode {
                 return gamepad1.dpad_right;
             }
         };
+
+        bucketGate = new ToggleServo() {
+            @Override
+            public void toggleTrue() {
+                r.lift.openGate();
+            }
+
+            @Override
+            public void toggleFalse() {
+                r.lift.closeGate();
+            }
+
+            @Override
+            public boolean toggleCondition() {
+                return gamepad1.dpad_left;
+            }
+        };
+        /*
+        Runnable[] runnables = {
+                new Runnable() {
+                    @Override
+                    public void run() {
+
+                    }
+
+                },
+                new Runnable() {
+                    @Override
+                    public void run() {
+
+                    }
+                }};
+        macroMgr = new Macro()
+        {
+            @Override
+            public int condition() {
+                return 0;
+            }
+        };
+        */
 
 
     }
@@ -135,20 +187,24 @@ public class TeleOP extends OpMode {
         }
 
         if (gamepad1.left_trigger > 0.4) {
-            r.lift.setPwr(1);
-        } else if (gamepad1.left_bumper) {
             r.lift.setPwr(-1);
+        } else if (gamepad1.left_bumper) {
+            r.lift.setPwr(1);
         } else {
             r.lift.setPwr(0);
         }
 
         if (gamepad1.right_trigger > 0.4) {
-            r.extender.intake(-1);
-        } else if (gamepad1.right_bumper) {
             r.extender.intake(1);
+        } else if (gamepad1.right_bumper) {
+            r.extender.intake(-1);
         } else {
             r.extender.intake(0);
         }
+
+        telemetry.addData("servo #1 position", r.INTAKE_EXT_R.getPosition());
+        telemetry.update();
+
     }
 
 }

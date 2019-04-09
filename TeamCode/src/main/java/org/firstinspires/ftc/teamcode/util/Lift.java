@@ -1,5 +1,8 @@
 package org.firstinspires.ftc.teamcode.util;
 
+import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+
 public class Lift {
 
     private Robot r;
@@ -58,6 +61,11 @@ public class Lift {
     public void setPwr(double pwr) {
         r.LIFT_L.setPower(pwr);
         r.LIFT_R.setPower(pwr);
+    }
+
+    private void setLiftMode(DcMotor.RunMode mode) {
+        r.LIFT_L.setMode(mode);
+        r.LIFT_R.setMode(mode);
     }
 
     // TODO: Find values for all these servos

@@ -105,7 +105,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
 
                 double ramp = 0;
                 double initialPwr = 0.2;
-                if (runtime.seconds() < AutoConfig.T_F && inches > 2) {
+                if (runtime.seconds() < AutoConfig.T_F && Math.abs(inches) > 3) {
                     double b = speed - initialPwr;
                     ramp = (b * (1 - runtime.seconds() / AutoConfig.T_F)) * (errorAve/Math.abs(errorAve));
                 }
@@ -244,6 +244,7 @@ public abstract class AutonomousOpMode extends LinearOpMode {
 
     public void unlatch() {
         r.extender.extendStore();
+        r.extender.pivotUp();
         sleep(250);
         r.lift.mid();
         sleep(250);
@@ -254,9 +255,23 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         r.lift.setPwr(1);
         sleep(100);
         r.lift.back();
-        sleep(650);
+        sleep(800);
         r.lift.setPwr(0);
         r.lift.back();
+
+
+    }
+
+    public void liftDown() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                r.lift.setPwr(-0.2);
+                sleep(750);
+                r.lift.setPwr(0);
+
+            }
+        }).start();
     }
 
     /**

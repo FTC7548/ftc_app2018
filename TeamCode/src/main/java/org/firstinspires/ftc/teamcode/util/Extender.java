@@ -19,9 +19,15 @@ public class Extender {
     }
 
     public void setPower(float f) {
-        r.EXTEND_L.setPower(f);
-        r.EXTEND_R.setPower(-f);
+        r.EXTEND_L.setPower(-f);
+        r.EXTEND_R.setPower(f);
     }
+
+    public void extendTransfer() {
+        r.INTAKE_EXT_L.setPosition(ServoPos.INTAKE_EXT_L_TRANSFER.pos);
+        r.INTAKE_EXT_R.setPosition(ServoPos.INTAKE_EXT_R_TRANSFER.pos);
+    }
+
 
     public void intake(float f) {
         r.INTAKE_1.setPower(f * .7);
@@ -54,16 +60,19 @@ public class Extender {
     private enum ServoPos {
         INTAKE_EXT_L_FORWARD (0.87), // servo 5
         INTAKE_EXT_L_BACK (0.64), // towards 1 = down
+        INTAKE_EXT_L_TRANSFER(0.54),
         INTAKE_EXT_L_STORE (0.45),
 
         INTAKE_EXT_R_FORWARD (0.14), // servo 0
         INTAKE_EXT_R_BACK (0.58), // towards 0 = down
+        INTAKE_EXT_R_TRANSFER(0.68),
         INTAKE_EXT_R_STORE (0.78),
 
         GATE_UP (.71),
         GATE_DOWN (.5),
 
         BASKET_PIVOT_DOWN (.75),
+        BASKET_PIVOT_TRANSFER(.85),
         BASKET_PIVOT_UP (1);
 
         public final double pos;

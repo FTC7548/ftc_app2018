@@ -107,8 +107,8 @@ public class Robot {
         LIFT_L.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         LIFT_R.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        LIFT_L.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        LIFT_L.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //LIFT_L.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //LIFT_L.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         HOOK_L = hm.servo.get("hook_l"); // 3
         HOOK_R = hm.servo.get("hook_r"); // 6
