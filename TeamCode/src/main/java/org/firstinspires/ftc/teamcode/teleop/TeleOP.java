@@ -137,12 +137,12 @@ public class TeleOP extends OpMode {
                 return gamepad1.dpad_left;
             }
         };
-        /*
+
         Runnable[] runnables = {
                 new Runnable() {
                     @Override
                     public void run() {
-
+                        r.eo soseztdfuonWKsef
                     }
 
                 },
@@ -152,15 +152,14 @@ public class TeleOP extends OpMode {
 
                     }
                 }};
-        macroMgr = new Macro()
+        macroMgr = new Macro(runnables)
         {
             @Override
             public int condition() {
-                return 0;
+                if (gamepad1.a) return 0;
+                else return -1;
             }
         };
-        */
-
 
     }
 
@@ -169,6 +168,7 @@ public class TeleOP extends OpMode {
     }
 
     public void loop() {
+        macroMgr.update();
         bucketArm.update();
         liftLock.update();
         intakePivot.update();
