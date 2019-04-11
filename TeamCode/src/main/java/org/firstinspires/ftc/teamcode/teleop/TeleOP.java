@@ -24,6 +24,9 @@ public class TeleOP extends OpMode {
     public void init() {
         r = new Robot(hardwareMap);
 
+        r.lift.unlock();
+        r.lift.back();
+
         bucketArm = new ToggleServo() {
 
             @Override
@@ -64,23 +67,27 @@ public class TeleOP extends OpMode {
             @Override
             public void toggleTrue() {
                 r.extender.extendOut();
-                r.extender.intake(1);
+                r.extender.pivotDown();
+                //r.extender.intake(1);
             }
 
             @Override
             public void toggleFalse() {
                 r.extender.extendIn();
+                r.extender.pivotUp();
+                /*
                 if (!(gamepad1.right_trigger > 0.4)) {
                     r.extender.intake(-1);
                 } else {
                     r.extender.intake(1);
                 }
+                */
 
             }
 
             @Override
             public boolean toggleCondition() {
-                return gamepad1.y;
+                return gamepad2.y;
             }
         };
 
@@ -97,47 +104,11 @@ public class TeleOP extends OpMode {
 
             @Override
             public boolean toggleCondition() {
-                return gamepad1.x;
+                return gamepad2.x;
             }
         };
 
-        intakeBasketGate = new ToggleServo() {
-            @Override
-            public void toggleTrue() {
-                r.extender.gateUp();
-                //r.extender.extendTransfer();
-            }
-
-            @Override
-            public void toggleFalse() {
-                r.extender.gateDown();
-                r.INTAKE_PIVOT.setPosition(0.9);
-
-            }
-
-            @Override
-            public boolean toggleCondition() {
-                return gamepad1.dpad_right;
-            }
-        };
-
-        bucketGate = new ToggleServo() {
-            @Override
-            public void toggleTrue() {
-                r.lift.openGate();
-            }
-
-            @Override
-            public void toggleFalse() {
-                r.lift.closeGate();
-            }
-
-            @Override
-            public boolean toggleCondition() {
-                return gamepad1.dpad_left;
-            }
-        };
-
+        /*
         Runnable[] runnables = {
                 new Runnable() {
                     @Override
@@ -160,6 +131,7 @@ public class TeleOP extends OpMode {
                 else return -1;
             }
         };
+        */
 
     }
 
@@ -168,19 +140,24 @@ public class TeleOP extends OpMode {
     }
 
     public void loop() {
-        macroMgr.update();
+        //macroMgr.update();
         bucketArm.update();
+        //bucketGate.update();
         liftLock.update();
         intakePivot.update();
         intakeBasketPivot.update();
-        intakeBasketGate.update();
+        //intakeBasketGate.update();
 
-        r.setDrivePwr(gamepad1.left_stick_y, gamepad1.right_stick_y);
+        if (gamepad1.right_bumper) {
+            r.setDrivePwr(gamepad1.left_stick_y * 0.5, gamepad1.right_stick_y * 0.5);
+        } else {
+            r.setDrivePwr(gamepad1.left_stick_y, gamepad1.right_stick_y);
+        }
 
-        if (gamepad1.dpad_up) {
+        if (gamepad2.dpad_up) {
             r.extender.setPower(1F);
 
-        } else if (gamepad1.dpad_down) {
+        } else if (gamepad2.dpad_down) {
             r.extender.setPower(-1F);
         } else {
             r.extender.setPower(0F);
@@ -194,12 +171,25 @@ public class TeleOP extends OpMode {
             r.lift.setPwr(0);
         }
 
-        if (gamepad1.right_trigger > 0.4) {
+        if (gamepad2.right_trigger > 0.4) {
             r.extender.intake(1);
-        } else if (gamepad1.right_bumper) {
+        } else if (gamepad2.right_bumper) {
             r.extender.intake(-1);
         } else {
             r.extender.intake(0);
+        }
+
+        if (gamepad1.x) {
+            r.lift.openGate();
+        } else {
+            r.lift.closeGate();
+        }
+
+        if (gamepad2.dpad_right) {
+            r.extender.gateDown();
+            r.INTAKE_PIVOT.setPosition(0.9);
+        } else {
+            r.extender.gateUp();
         }
 
         telemetry.addData("servo #1 position", r.INTAKE_EXT_R.getPosition());

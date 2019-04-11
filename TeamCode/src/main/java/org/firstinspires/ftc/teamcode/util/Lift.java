@@ -70,12 +70,12 @@ public class Lift {
 
     // TODO: Find values for all these servos
     private enum ServoPos {
-        BASKET_EXT_L_FORWARD (.98), // towards 0 = down
+        BASKET_EXT_L_FORWARD (.93), // towards 0 = down
         BASKET_EXT_L_BACK (0.08), // the one that is not servo 5
         BASKET_EXT_L_MID (0.15),
 
         BASKET_EXT_R_FORWARD (.98), // towards 0 = down
-        BASKET_EXT_R_BACK (0.06), // servo 5
+        BASKET_EXT_R_BACK (0.11), // servo 5
         BASKET_EXT_R_MID (0.15),
 
         HOOK_L_LOCKED (.99), // 3
@@ -85,10 +85,10 @@ public class Lift {
         HOOK_R_UNLOCKED (.13), // towards 0 = more locked
 
         GATE_UP (0),
-        GATE_DOWN (0),
+        GATE_DOWN (0.5),
 
         BASKET_PIVOT_INTAKE (0.54), // towards 0 = more up from down pos
-        BASKET_PIVOT_DUMP (0.44);
+        BASKET_PIVOT_DUMP (0.38);
 
         public final double pos;
 
