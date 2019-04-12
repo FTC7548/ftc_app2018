@@ -243,10 +243,11 @@ public abstract class AutonomousOpMode extends LinearOpMode {
     }
 
     public void unlatch() {
+        r.BASKET_PIVOT.setPosition(1);
         r.extender.extendStore();
         r.extender.pivotUp();
         sleep(250);
-        r.lift.mid();
+        r.lift.midNoPivot();
         sleep(250);
         r.lift.setPwr(-1);
         sleep(500);
@@ -254,10 +255,10 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         sleep(200);
         r.lift.setPwr(1);
         sleep(100);
-        r.lift.back();
+        r.lift.backNoPivot();
         sleep(800);
         r.lift.setPwr(0);
-        r.lift.back();
+        r.lift.backNoPivot();
 
 
     }

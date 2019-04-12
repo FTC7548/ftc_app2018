@@ -32,6 +32,16 @@ public class Lift {
         r.BASKET_PIVOT.setPosition(ServoPos.BASKET_PIVOT_INTAKE.pos);
     }
 
+    public void backNoPivot() {
+        r.BASKET_EXT_L.setPosition(ServoPos.BASKET_EXT_L_BACK.pos);
+        r.BASKET_EXT_R.setPosition(ServoPos.BASKET_EXT_R_BACK.pos);
+    }
+
+    public void midNoPivot() {
+        r.BASKET_EXT_L.setPosition(ServoPos.BASKET_EXT_L_MID.pos);
+        r.BASKET_EXT_R.setPosition(ServoPos.BASKET_EXT_R_MID.pos);
+    }
+
     public void openGate() {
         r.HOLDER_GATE.setPosition(ServoPos.GATE_UP.pos);
     }
