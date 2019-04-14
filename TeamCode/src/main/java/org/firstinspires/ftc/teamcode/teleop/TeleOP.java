@@ -1,7 +1,11 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
+import android.util.Log;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.util.Macro;
 import org.firstinspires.ftc.teamcode.util.Robot;
@@ -17,7 +21,8 @@ public class TeleOP extends OpMode {
                             liftLock,
                             intakePivot,
                             intakeBasketPivot,
-                            intakeBasketGate;
+                            intakeBasketGate,
+                            intakeToggle;
 
     private Macro           macroMgr;
 
@@ -67,6 +72,10 @@ public class TeleOP extends OpMode {
             @Override
             public void toggleTrue() {
                 r.extender.extendOut();
+                ElapsedTime time = new ElapsedTime();
+                while (time.seconds() < 0.25) {
+
+                }
                 r.extender.pivotDown();
                 //r.extender.intake(1);
             }
@@ -74,7 +83,7 @@ public class TeleOP extends OpMode {
             @Override
             public void toggleFalse() {
                 r.extender.extendIn();
-                r.extender.pivotUp();
+                //r.extender.pivotUp();
                 /*
                 if (!(gamepad1.right_trigger > 0.4)) {
                     r.extender.intake(-1);
@@ -108,30 +117,57 @@ public class TeleOP extends OpMode {
             }
         };
 
-        /*
+        intakeToggle = new ToggleServo() {
+            @Override
+            public void toggleTrue() {
+                if (gamepad2.right_trigger < 0.4) {
+                    r.extender.intake(-1);
+                }
+            }
+
+            @Override
+            public void toggleFalse() {
+                if (gamepad2.right_trigger < 0.4) {
+                    r.extender.intake(0);
+                }
+            }
+
+            @Override
+            public boolean toggleCondition() {
+                return gamepad2.right_bumper;
+            }
+        };
+
         Runnable[] runnables = {
                 new Runnable() {
                     @Override
                     public void run() {
-                        r.eo soseztdfuonWKsef
+                        /*
+                        r.lift.encLiftTest(1400);
+                        bucketArm.toggleTrue();
+                        r.lift.encLiftTest(700);
+                        */
                     }
 
                 },
                 new Runnable() {
                     @Override
                     public void run() {
-
+                        /*
+                        bucketArm.toggleFalse();
+                        r.lift.encLiftTest(-2100);
+                        */
                     }
                 }};
         macroMgr = new Macro(runnables)
         {
             @Override
             public int condition() {
-                if (gamepad1.a) return 0;
+                if (gamepad1.dpad_up) return 0;
+                //if (gamepad1.dpad_down) return 1;
                 else return -1;
             }
         };
-        */
 
     }
 
@@ -140,13 +176,14 @@ public class TeleOP extends OpMode {
     }
 
     public void loop() {
-        //macroMgr.update();
+        macroMgr.update();
         bucketArm.update();
         //bucketGate.update();
         liftLock.update();
         intakePivot.update();
         intakeBasketPivot.update();
         //intakeBasketGate.update();
+        intakeToggle.update();
 
         if (gamepad1.right_bumper) {
             r.setDrivePwr(gamepad1.left_stick_y * 0.5, gamepad1.right_stick_y * 0.5);
@@ -166,11 +203,20 @@ public class TeleOP extends OpMode {
         if (gamepad1.left_trigger > 0.4) {
             r.lift.setPwr(-1);
         } else if (gamepad1.left_bumper) {
-            r.lift.setPwr(1);
+            if (gamepad1.right_bumper) {
+                r.lift.setPwr(0.5);
+            } else {
+                r.lift.setPwr(1);
+            }
         } else {
             r.lift.setPwr(0);
         }
 
+        if (gamepad2.right_trigger > 0.4) {
+            r.extender.intake(1);
+        }
+
+        /*
         if (gamepad2.right_trigger > 0.4) {
             r.extender.intake(1);
         } else if (gamepad2.right_bumper) {
@@ -178,8 +224,9 @@ public class TeleOP extends OpMode {
         } else {
             r.extender.intake(0);
         }
+        */
 
-        if (gamepad1.x) {
+        if (gamepad1.right_trigger > 0.4) {
             r.lift.openGate();
         } else {
             r.lift.closeGate();
@@ -193,6 +240,7 @@ public class TeleOP extends OpMode {
         }
 
         telemetry.addData("servo #1 position", r.INTAKE_EXT_R.getPosition());
+        telemetry.addData("lift_pos", r.LIFT_L.getCurrentPosition());
         telemetry.update();
 
     }

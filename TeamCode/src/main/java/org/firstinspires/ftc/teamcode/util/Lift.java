@@ -73,6 +73,26 @@ public class Lift {
         r.LIFT_R.setPower(pwr);
     }
 
+    public void encLiftTest(int ticks) {
+        int finalTicks = r.LIFT_L.getCurrentPosition() + ticks;
+
+        r.LIFT_L.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        r.LIFT_R.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        if (ticks > 0) {
+            while (r.LIFT_L.getCurrentPosition() < finalTicks ) {
+                r.lift.setPwr(1);
+            }
+            r.lift.setPwr(0);
+        } else {
+            while (r.LIFT_L.getCurrentPosition() > finalTicks ) {
+                r.lift.setPwr(-1);
+            }
+            r.lift.setPwr(0);
+        }
+
+    }
+
     private void setLiftMode(DcMotor.RunMode mode) {
         r.LIFT_L.setMode(mode);
         r.LIFT_R.setMode(mode);
@@ -81,11 +101,11 @@ public class Lift {
     // TODO: Find values for all these servos
     private enum ServoPos {
         BASKET_EXT_L_FORWARD (.93), // towards 0 = down
-        BASKET_EXT_L_BACK (0.08), // the one that is not servo 5
+        BASKET_EXT_L_BACK (0.1), // the one that is not servo 5
         BASKET_EXT_L_MID (0.15),
 
         BASKET_EXT_R_FORWARD (.98), // towards 0 = down
-        BASKET_EXT_R_BACK (0.11), // servo 5
+        BASKET_EXT_R_BACK (0.12), // servo 5
         BASKET_EXT_R_MID (0.15),
 
         HOOK_L_LOCKED (.99), // 3
@@ -97,8 +117,8 @@ public class Lift {
         GATE_UP (0),
         GATE_DOWN (0.5),
 
-        BASKET_PIVOT_INTAKE (0.54), // towards 0 = more up from down pos
-        BASKET_PIVOT_DUMP (0.38);
+        BASKET_PIVOT_INTAKE (0.52), // towards 0 = more up from down pos
+        BASKET_PIVOT_DUMP (0.33);
 
         public final double pos;
 
