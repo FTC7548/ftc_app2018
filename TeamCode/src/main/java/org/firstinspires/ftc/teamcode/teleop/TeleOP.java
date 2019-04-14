@@ -203,7 +203,7 @@ public class TeleOP extends OpMode {
         if (gamepad1.left_trigger > 0.4) {
             r.lift.setPwr(-1);
         } else if (gamepad1.left_bumper) {
-            if (gamepad1.right_bumper) {
+            if (gamepad1.y) {
                 r.lift.setPwr(0.5);
             } else {
                 r.lift.setPwr(1);
