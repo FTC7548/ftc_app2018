@@ -26,6 +26,8 @@ public class TeleOP extends OpMode {
 
     private Macro           macroMgr;
 
+    public boolean intakeToggleOn = false;
+
     public void init() {
         r = new Robot(hardwareMap);
 
@@ -37,6 +39,7 @@ public class TeleOP extends OpMode {
             @Override
             public void toggleTrue() {
                 r.lift.forward();
+                r.extender.extendOut();
             }
 
             @Override
@@ -83,7 +86,7 @@ public class TeleOP extends OpMode {
             @Override
             public void toggleFalse() {
                 r.extender.extendIn();
-                //r.extender.pivotUp();
+                r.extender.pivotUp();
                 /*
                 if (!(gamepad1.right_trigger > 0.4)) {
                     r.extender.intake(-1);
@@ -120,16 +123,12 @@ public class TeleOP extends OpMode {
         intakeToggle = new ToggleServo() {
             @Override
             public void toggleTrue() {
-                if (gamepad2.right_trigger < 0.4) {
-                    r.extender.intake(-1);
-                }
+                intakeToggleOn = true;
             }
 
             @Override
             public void toggleFalse() {
-                if (gamepad2.right_trigger < 0.4) {
-                    r.extender.intake(0);
-                }
+                intakeToggleOn = false;
             }
 
             @Override
@@ -142,21 +141,22 @@ public class TeleOP extends OpMode {
                 new Runnable() {
                     @Override
                     public void run() {
-                        /*
-                        r.lift.encLiftTest(1400);
+                        r.extender.extendOut();
+                        r.lift.encLiftTest(1000);
                         bucketArm.toggleTrue();
-                        r.lift.encLiftTest(700);
-                        */
+                        r.lift.encLiftTest(1100);
                     }
 
                 },
                 new Runnable() {
                     @Override
                     public void run() {
-                        /*
                         bucketArm.toggleFalse();
+                        ElapsedTime time = new ElapsedTime();
+                        while (time.seconds() < 0.25) {
+
+                        }
                         r.lift.encLiftTest(-2100);
-                        */
                     }
                 }};
         macroMgr = new Macro(runnables)
@@ -164,7 +164,7 @@ public class TeleOP extends OpMode {
             @Override
             public int condition() {
                 if (gamepad1.dpad_up) return 0;
-                //if (gamepad1.dpad_down) return 1;
+                if (gamepad1.dpad_down) return 1;
                 else return -1;
             }
         };
@@ -209,11 +209,17 @@ public class TeleOP extends OpMode {
                 r.lift.setPwr(1);
             }
         } else {
-            r.lift.setPwr(0);
+            if (!macroMgr.thread.isAlive()) {
+                r.lift.setPwr(0);
+            }
         }
 
         if (gamepad2.right_trigger > 0.4) {
             r.extender.intake(1);
+        } else if (intakeToggleOn) {
+            r.extender.intake(-1);
+        } else {
+            r.extender.intake(0);
         }
 
         /*
@@ -239,10 +245,19 @@ public class TeleOP extends OpMode {
             r.extender.gateUp();
         }
 
+        if (gamepad1.dpad_left) {
+            r.lift.stopEncLiftTest();
+        }
+
         telemetry.addData("servo #1 position", r.INTAKE_EXT_R.getPosition());
         telemetry.addData("lift_pos", r.LIFT_L.getCurrentPosition());
         telemetry.update();
 
+    }
+
+    @Override
+    public void stop() {
+        r.lift.setPwr(0);
     }
 
 }

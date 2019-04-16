@@ -11,6 +11,8 @@ public class Lift {
         this.r = r;
     }
 
+    public boolean encLiftActive = false;
+
 
     // Lift actions
 
@@ -75,22 +77,27 @@ public class Lift {
 
     public void encLiftTest(int ticks) {
         int finalTicks = r.LIFT_L.getCurrentPosition() + ticks;
+        encLiftActive = true;
 
         r.LIFT_L.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         r.LIFT_R.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         if (ticks > 0) {
-            while (r.LIFT_L.getCurrentPosition() < finalTicks ) {
+            while (r.LIFT_L.getCurrentPosition() < finalTicks && encLiftActive) {
                 r.lift.setPwr(1);
             }
             r.lift.setPwr(0);
         } else {
-            while (r.LIFT_L.getCurrentPosition() > finalTicks ) {
+            while (r.LIFT_L.getCurrentPosition() > finalTicks && encLiftActive) {
                 r.lift.setPwr(-1);
             }
             r.lift.setPwr(0);
         }
 
+    }
+
+    public void stopEncLiftTest() {
+        encLiftActive = false;
     }
 
     private void setLiftMode(DcMotor.RunMode mode) {
@@ -104,7 +111,7 @@ public class Lift {
         BASKET_EXT_L_BACK (0.1), // the one that is not servo 5
         BASKET_EXT_L_MID (0.15),
 
-        BASKET_EXT_R_FORWARD (.98), // towards 0 = down
+        BASKET_EXT_R_FORWARD (.95), // towards 0 = down
         BASKET_EXT_R_BACK (0.12), // servo 5
         BASKET_EXT_R_MID (0.15),
 

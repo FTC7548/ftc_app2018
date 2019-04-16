@@ -2,7 +2,7 @@ package org.firstinspires.ftc.teamcode.util;
 
 public abstract class Macro {
 
-    private Thread thread;
+    public Thread thread;
     private Runnable[] r;
 
     public Macro(Runnable[] r) {
