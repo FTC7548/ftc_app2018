@@ -142,9 +142,7 @@ public class TeleOP extends OpMode {
                     @Override
                     public void run() {
                         r.extender.extendOut();
-                        r.lift.encLiftTest(1000);
-                        bucketArm.toggleTrue();
-                        r.lift.encLiftTest(1100);
+                        r.lift.encLiftTest(2100);
                     }
 
                 },
@@ -258,6 +256,7 @@ public class TeleOP extends OpMode {
     @Override
     public void stop() {
         r.lift.setPwr(0);
+        r.lift.stopEncLiftTest();
     }
 
 }

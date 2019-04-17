@@ -84,6 +84,9 @@ public class Lift {
 
         if (ticks > 0) {
             while (r.LIFT_L.getCurrentPosition() < finalTicks && encLiftActive) {
+                if (finalTicks - r.LIFT_L.getCurrentPosition() < 1100) {
+                    forward();
+                }
                 r.lift.setPwr(1);
             }
             r.lift.setPwr(0);
@@ -108,11 +111,11 @@ public class Lift {
     // TODO: Find values for all these servos
     private enum ServoPos {
         BASKET_EXT_L_FORWARD (.93), // towards 0 = down
-        BASKET_EXT_L_BACK (0.1), // the one that is not servo 5
+        BASKET_EXT_L_BACK (0.12), // the one that is not servo 5
         BASKET_EXT_L_MID (0.15),
 
         BASKET_EXT_R_FORWARD (.95), // towards 0 = down
-        BASKET_EXT_R_BACK (0.12), // servo 5
+        BASKET_EXT_R_BACK (0.13), // servo 5
         BASKET_EXT_R_MID (0.15),
 
         HOOK_L_LOCKED (.99), // 3
@@ -124,7 +127,7 @@ public class Lift {
         GATE_UP (0),
         GATE_DOWN (0.5),
 
-        BASKET_PIVOT_INTAKE (0.52), // towards 0 = more up from down pos
+        BASKET_PIVOT_INTAKE (0.5), // towards 0 = more up from down pos
         BASKET_PIVOT_DUMP (0.33);
 
         public final double pos;
