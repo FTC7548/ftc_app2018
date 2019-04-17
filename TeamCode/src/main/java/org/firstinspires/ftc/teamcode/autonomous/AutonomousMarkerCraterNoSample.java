@@ -10,22 +10,22 @@ public class AutonomousMarkerCraterNoSample extends AutonomousOpMode {
     public void startOpMode() {
         unlatch();
         sleep(500);
-        drivePID(1, 1, 5, 0);
+        drivePID(1, 3, 5, 0);
         //moveLift(0.5, 0);
         r.LIFT_L.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         r.LIFT_R.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
 
         if (BLOCK_POS == -1) {
             turnPID(45, 0.8, 5);
-            drivePID(0.8, 10, 5, 0);
-            drivePID(0.8, -10, 5, 0);
+            drivePID(0.8, 9, 5, 0);
+            drivePID(0.8, -9, 5, 0);
         } else if (BLOCK_POS == 0) {
-            drivePID(0.8, 8, 5, 0);
-            drivePID(0.8, -8, 5, 0);
+            drivePID(0.8, 7, 5, 0);
+            drivePID(0.8, -7, 5, 0);
         } else {
             turnPID(-45, 0.7, 5);
-            drivePID(0.8, 10, 5, 0);
-            drivePID(0.8, -10, 5, 0);
+            drivePID(0.8, 9, 5, 0);
+            drivePID(0.8, -9, 5, 0);
         }
 
         r.LIFT_L.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
