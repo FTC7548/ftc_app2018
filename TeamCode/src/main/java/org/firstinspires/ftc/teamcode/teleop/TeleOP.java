@@ -85,12 +85,16 @@ public class TeleOP extends OpMode {
 
             @Override
             public void toggleFalse() {
+                r.INTAKE_PIVOT.setPosition(0.9);
+                r.extender.extendIn();
+                /*
                 r.extender.extendIn();
                 ElapsedTime time = new ElapsedTime();
                 while (time.seconds() < 0.25) {
 
                 }
                 r.extender.pivotUp();
+                */
                 /*
                 if (!(gamepad1.right_trigger > 0.4)) {
                     r.extender.intake(-1);
@@ -147,7 +151,7 @@ public class TeleOP extends OpMode {
                     public void run() {
                         intakePivot.toggleTrue();
                         intakePivot.state = true;
-                        r.lift.encLiftTest(2100);
+                        r.lift.encLiftTest(1960);
                     }
 
                 },
@@ -159,7 +163,7 @@ public class TeleOP extends OpMode {
                         while (time.seconds() < 0.25) {
 
                         }
-                        r.lift.encLiftTest(-2100);
+                        r.lift.encLiftTest(-1960);
                     }
                 }};
         macroMgr = new Macro(runnables)

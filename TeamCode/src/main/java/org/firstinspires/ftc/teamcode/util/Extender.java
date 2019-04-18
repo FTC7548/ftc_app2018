@@ -59,12 +59,12 @@ public class Extender {
     // TODO: Find values for all these servos
     private enum ServoPos {
         INTAKE_EXT_L_FORWARD (0.84), // servo 5
-        INTAKE_EXT_L_BACK (0.64), // towards 1 = down
+        INTAKE_EXT_L_BACK (0.63), // towards 1 = down
         INTAKE_EXT_L_TRANSFER(0.54),
         INTAKE_EXT_L_STORE (0.45),
 
         INTAKE_EXT_R_FORWARD (0.2), // servo 0
-        INTAKE_EXT_R_BACK (0.58), // towards 0 = down
+        INTAKE_EXT_R_BACK (0.57), // towards 0 = down
         INTAKE_EXT_R_TRANSFER(0.68),
         INTAKE_EXT_R_STORE (0.78),
 

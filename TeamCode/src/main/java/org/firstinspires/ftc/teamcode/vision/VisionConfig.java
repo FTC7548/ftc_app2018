@@ -4,5 +4,5 @@ import com.acmerobotics.dashboard.config.Config;
 
 @Config
 public class VisionConfig {
-    public static int X_THRESHOLD = 400;
+    public static int X_THRESHOLD = 425;
 }

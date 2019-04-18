@@ -66,9 +66,18 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         pipeline.enable();
         r.lift.lock();
 
+        /*while (!isStarted() && opModeIsActive() && !isStopRequested()) {
+            if (senseIterate() == -1) {
+                telemetry.addData("pos", "LEFT");
+            } else if (senseIterate() == 0) {
+                telemetry.addData("pos", "CENTER");
+            } else {
+                telemetry.addData("pos", "RIGHT");
+            }
+            idle();
+        }*/
+
         waitForStart();
-
-
 
         BLOCK_POS = sense();
         telemetry.addData("pos", BLOCK_POS);
@@ -332,6 +341,43 @@ public abstract class AutonomousOpMode extends LinearOpMode {
         }
         sleep(500);
         return -2;
+    }
+
+
+    public int senseIterate() {
+        List<MatOfPoint> contours = pipeline.getContours();
+        if (contours.size() == 0) {
+            return -2;
+        }
+
+        ArrayList<Rect> inBounds = new ArrayList<Rect>();
+        for (int i = 0; i < contours.size(); i++) {
+            Rect boundingRect = Imgproc.boundingRect(contours.get(i));
+            double x = boundingRect.x + boundingRect.width / 2;
+            //double y = boundingRect.y + boundingRect.height / 2;
+
+            if (x > VisionConfig.X_THRESHOLD) {
+                inBounds.add(boundingRect);
+                //telemetry.addData("CONTOUR", "(%s, %s) %s", boundingRect.x + boundingRect.width / 2,
+                //boundingRect.y + boundingRect.height / 2, boundingRect.area());
+            }
+
+        }
+
+        Collections.sort(inBounds, new SortContourBySize());
+        if (inBounds.size() > 0) {
+            Rect biggest = inBounds.get(0);
+            double y = biggest.y + biggest.height / 2;
+            if (y < 200) {
+                return 1;
+            } else if (y < 400) {
+                return 0;
+            } else {
+                return -1;
+            }
+        } else {
+            return -2;
+        }
     }
 
     public void moveLift(double pwr, int ticks) {

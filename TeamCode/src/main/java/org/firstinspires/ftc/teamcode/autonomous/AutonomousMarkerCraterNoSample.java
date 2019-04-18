@@ -36,7 +36,7 @@ public class AutonomousMarkerCraterNoSample extends AutonomousOpMode {
         turnPID(135, 0.8, 0);
         drivePID(1, 15, 5, 0);
         r.extender.extendOut();
-        sleep(300);
+        sleep(800);
         r.extender.extendStore();
         sleep(500);
         turnNoPID(90, 0.8, 0);

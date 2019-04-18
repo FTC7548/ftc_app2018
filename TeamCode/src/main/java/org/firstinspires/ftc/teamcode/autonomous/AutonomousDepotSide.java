@@ -44,7 +44,7 @@ public class AutonomousDepotSide extends AutonomousOpMode {
         }
 
         r.extender.extendOut();
-        sleep(750);
+        sleep(800);
         r.extender.extendStore();
 
         if (BLOCK_POS == -1) {

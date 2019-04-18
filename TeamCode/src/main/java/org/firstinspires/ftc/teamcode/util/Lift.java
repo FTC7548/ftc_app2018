@@ -115,7 +115,7 @@ public class Lift {
         BASKET_EXT_L_MID (0.15),
 
         BASKET_EXT_R_FORWARD (.95), // towards 0 = down
-        BASKET_EXT_R_BACK (0.14), // servo 5
+        BASKET_EXT_R_BACK (0.15), // servo 5
         BASKET_EXT_R_MID (0.15),
 
         HOOK_L_LOCKED (.99), // 3
